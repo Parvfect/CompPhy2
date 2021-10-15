@@ -81,3 +81,27 @@ for i in x
         break
     end
 end
+
+i = 1
+
+while i<50
+    println(i)
+    i+=1
+end    
+
+function suck(x::Double)
+end
+
+@time for i in x
+    print(i)
+end
+
+function sum_arg(y)
+    s= 0.0
+    @time for i in z
+        s+= i
+    end
+    return s
+end
+
+sum_arg(2)
