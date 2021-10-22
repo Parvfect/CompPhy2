@@ -1,6 +1,11 @@
 using Plots
 using LinearAlgebra
 
+# Constants
+me=9.11e-31
+a=3e-10
+hbar=1.05e-34
+
 
 function Schrodinger1D(U, E, A2, B2)
     #= U - Potentials of both states, E - Energy of Wavefunction, A2 & B2 - Boundary Conditions, m : mass
@@ -12,15 +17,15 @@ function Schrodinger1D(U, E, A2, B2)
     B1 = 0
 
     # Calculating constants
-    k1 = sqrt(complex(2* (E - U[1])))/6.626
-    k2 = sqrt(complex(2* (E - U[2])))/6.626
+    k1 = sqrt(2* me *complex((E - U[1])))/hbar
+    k2 = sqrt(2 * me *complex((E - U[2])))/hbar
    
     k1k2 = k1 + k2
     k1_k2 = k1 - k2
 
     # Forming matrix
     T = 1/2k1 * 
-    [k1k2*exp(-im*k1_k2) k1_k2*exp(-im*k1k2) ; k1_k2*exp(im*k1k2) k1k2*exp(im*k1_k2)]
+    [k1k2*exp(-1im*a*k1_k2) k1_k2*exp(-1im*a*k1k2) ; k1_k2*exp(1im*a*k1k2) k1k2*exp(1im*a*k1_k2)]
     Bc2 = [A2, B2]
     Bc1 = [A1, B1]
 
@@ -46,12 +51,12 @@ end
 function plotWaveFunction1D(Bc1, Bc2, k1, k2)
     # Plots the Wavefunction of an electron incident on the boundary in 1d """ 
     dx = 0.02
-    grid = 0:dx:10
+    grid = -2e-9:1e-11:2e-9
     psi = complex(zeros(length(grid)))
     
     for i in 1:length(grid)
 
-        if grid[i] < 5
+        if grid[i] < a
             psi[i] = Ψ(Bc1[1], Bc1[2], k1, grid[i])
         
         # Boundary in the middle 
@@ -60,14 +65,12 @@ function plotWaveFunction1D(Bc1, Bc2, k1, k2)
         end
     end
 
-    mod_psi = [probabilityAmplitude(i) for i in psi]
     plot(grid, real(psi),  label = "Wavefunction for Time Independent Schordinger Equation in One Dimension", xlabel = "x", ylabel = "psi(x)")
-    #plot!(grid, real(psi))
-    #plot!()
+    plot!(grid, imag(psi))
 end
     
     
 
-U = [0, 2]
-E = [0.5, 1.5, 2.5]
-Schrodinger1D(U, E[1], 2.4, 0)
+U = [0, 2] * e
+E = [0.75, 1.5, 2.5] * e
+Schrodinger1D(U, E[1], 1.0, 0)
