@@ -52,6 +52,7 @@ end
 function plotWaveFunction1D(Bc1, Bc2, k1, k2)
     # Plots the Wavefunction of an electron incident on the boundary in 1d """ 
     dx = 0.02
+    
     grid = -2e-9:1e-11:2e-9
     psi = complex(zeros(length(grid)))
     
