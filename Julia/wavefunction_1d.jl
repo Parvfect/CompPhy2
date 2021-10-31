@@ -106,17 +106,13 @@ function nRegion(U, E, An, Bcn, lowerLimit, upperLimit, step)
     upperLimit = sum(An)
     Bc2 = Bcn
 
-    for i in reverse(1:length(U))
+    for i in reverse(2:length(An))
 
-        if i == 1
-            break
-        end
         # For each step into the potential array we calculate reflection between two reigons
         boundary = upperLimit - An[i]
         lowerLimit = boundary - An[i-1]
 
         grid_2 = formGrid(upperLimit, (-step), boundary)
-        print(grid_2)
         grid_1 = formGrid(boundary, (-step), lowerLimit)
 
         # Getting Transfer Matrix and Boundary Conditions for n and n-1th reigon 
@@ -127,12 +123,8 @@ function nRegion(U, E, An, Bcn, lowerLimit, upperLimit, step)
         psi_1 = generalisedWavefunction(grid_1, Bc1, k2)
         
         # Append the values of the reigon to the start of the main grid
-        prepend!(grid, grid_2, grid_1)
-        prepend!(psi, psi_2, psi_1)
-
-        # Defining the boundaries of the n-1th reigon - symmetric assumption
-        grid_temp = []
-        Bc2 = Bc1
+        append!(grid, grid_2, grid_1)
+        append!(psi, psi_2, psi_1)
 
         upperLimit = lowerLimit
 
@@ -143,8 +135,8 @@ end
 
 function plotSimulation(grid, psi)
     #= Plots the Simulation of the Wavefunction through N Reigon Potential =#
-    print(typeof(real(psi)))
-    #display(plot(grid, real(psi)))
+    
+    display(plot(grid, real(psi)))
     #plot!(grid, imag(psi))
 end
 
@@ -159,5 +151,3 @@ function default_simulation()
     plotWaveFunction1D(Bc1, Bc2, k1, k2, a)
 end
 
-
-default_simulation()
