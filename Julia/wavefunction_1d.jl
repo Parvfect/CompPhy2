@@ -30,8 +30,6 @@ function Schrodinger1D(U, E, Bc2, a)
 
     # Performing Matrix Multiplication and extracting values
     Bc1 = T * Bc2 
-    
-    plotWaveFunction1D(Bc1, Bc2, k1, k2)
 
     return T, Bc1, k1, k2
 end
@@ -44,27 +42,6 @@ end
 function probabilityAmplitude(v)
     #= Finds the Probability Amplitude of the Observable/Vector =#
     return dot(v, conj(v))
-end
-
-function plotWaveFunction1D(Bc1, Bc2, k1, k2)
-    # Plots the Wavefunction of an electron incident on the boundary in 1d """ 
-    dx = 0.02
-    grid = -2e-9:1e-11:2e-9
-    psi = complex(zeros(length(grid)))
-    
-    for i in 1:length(grid)
-
-        if grid[i] < a
-            psi[i] = Ψ(Bc1[1], Bc1[2], k1, grid[i])
-        
-        # Boundary in the middle 
-        else
-            psi[i] = Ψ(Bc2[1], Bc2[2], k2, grid[i])
-        end
-    end
-
-    plot(grid, real(psi),  label = "Wavefunction for Time Independent Schordinger Equation in One Dimension", xlabel = "x", ylabel = "psi(x)")
-    plot!(grid, imag(psi))
 end
     
 function getWaveVector(E, U)
@@ -90,26 +67,19 @@ function reflectionProbability(t, U, E, A2, B2)
     return (modulus(t[2,1]/t[1,1])) * (modulus(t[2,1]/t[1,1]))
 end
 
-function generalisedWavefunction(grid, Bc1, Bc2, k1, k2)
+function generalisedWavefunction(grid, Bc, k)
     #= Calculates the Generalised Wavefunction for given reigon, Boundary Condition and Wave Vectors =#
     
     psi = complex(zeros(length(grid)))
     
     for i in 1:length(grid)
-
-        if grid[i] < a
-            psi[i] = Ψ(Bc1[1], Bc1[2], k1, grid[i])
-        
-        # Boundary in the middle 
-        else
-            psi[i] = Ψ(Bc2[1], Bc2[2], k2, grid[i])
-        end
-    end
+        psi[i] = Ψ(Bc[1], Bc[2], k, grid[i])
+    end 
 
     return psi
 end
 
-function formGrid(start, limit, step)
+function formGrid(start, step, limit)
     #= Forming the Grid for the Schrodinger Equation =#
     return start:step:limit
 end
@@ -118,7 +88,7 @@ function nRegion(U, E, An, Bcn, lowerLimit, upperLimit, step)
     #= Creates and Combines n reigons for Wavefunction Simulation
         U - Array of Potentials of a each reigon
         E - Energy of State
-        An - Array of Boundary locations
+        An - Array of lengths of reigons
         Bcn - Array of Boundary Conditions for the nth reigon 
 
     Working   
@@ -131,37 +101,54 @@ function nRegion(U, E, An, Bcn, lowerLimit, upperLimit, step)
     Assumes all reigons are symmetric - needs to be changed for general case
     =#
     
-    grid = formGrid(lowerLimit, upperLimit, step)
-    lowerLimit = An[length(An)] - upperLimit
-    Wavefunctions = Complex(zeros(length(grid)))
+    grid = zeros(0)
+    psi = complex(zeros(0))
 
-    for i in length(U):-1:2
-        
-        # Getting Transfer Matrix and Boundary Conditions for n-1th reigon 
-        T, Bc, k1, k2 = Schrodinger1D(U[i, i - 1], E, Bcn, A[i])
+    upperLimit = sum(An)
+    Bc2 = Bcn
+
+    for i in reverse(2:length(An))
+
+        # For each step into the potential array we calculate reflection between two reigons
+        boundary = upperLimit - An[i]
+        lowerLimit = boundary - An[i-1]
+
+        grid_2 = formGrid(upperLimit, (-step), boundary)
+        grid_1 = formGrid(boundary, (-step), lowerLimit)
+
+        # Getting Transfer Matrix and Boundary Conditions for n and n-1th reigon 
+        T, Bc1, k1, k2 = Schrodinger1D(U[i-1 : i], E, Bcn, (upperLimit - An[i]))
 
         # Getting Wavefunction for the n-1th - n reigon 
-        psi[lowerLimit: upperLimit] = generalisedWavefunction(grid[lowerLimit: upperLimit], Bc1, Bc2, k1, k2)
+        psi_2 = generalisedWavefunction(grid_2, Bc2, k1)
+        psi_1 = generalisedWavefunction(grid_1, Bc1, k2)
         
-        # Updating Boundary Condition
-        Bcn = Bc
+        # Append the values of the reigon to the start of the main grid
+        append!(grid, grid_2, grid_1)
+        append!(psi, psi_2, psi_1)
 
-        # Defining the boundaries of the n-1th reigon - symmetric assumption
         upperLimit = lowerLimit
-        lowerLimit = An[i - 1] - (upperLimit - An[i])
 
     end
 
-    return grid, Wavefunctions
+    return grid, psi
 end
 
-function plotSimulation()
+function plotSimulation(grid, psi)
     #= Plots the Simulation of the Wavefunction through N Reigon Potential =#
+    
+    display(plot(grid, real(psi)))
+    #plot!(grid, imag(psi))
 end
 
-U = [0, 2] * e
-E = [0.75, 1.5, 2.5] * e
-Bc2 = [1.0, 0.0]
 
-T, Bc1, k1, k2 = Schrodinger1D(U, E[1], Bc2, 3e-10)
-plotWaveFunction1D(Bc1, Bc2, k1, k2)
+function default_simulation()
+    U = [0, 2] * e
+    E = [0.75, 1.5, 2.5] * e
+    Bc2 = [1.0, 0.0]
+    a = 1e-10
+
+    T, Bc1, k1, k2 = Schrodinger1D(U, E[1], Bc2, a)
+    plotWaveFunction1D(Bc1, Bc2, k1, k2, a)
+end
+
