@@ -4,7 +4,7 @@ using LinearAlgebra
 # Constants
 e=1.6e-19
 me=9.11e-31
-a=3e-10
+a=3e-10 + 2e-9
 hbar=1.05e-34
 
 
@@ -53,12 +53,13 @@ function plotWaveFunction1D(Bc1, Bc2, k1, k2)
     # Plots the Wavefunction of an electron incident on the boundary in 1d """ 
     dx = 0.02
     
-    grid = -2e-9:1e-11:2e-9
+    boundary = 3e-10 + 2e-9
+    grid = 0:1e-11:(2*boundary)
     psi = complex(zeros(length(grid)))
     
     for i in 1:length(grid)
 
-        if grid[i] < a
+        if grid[i] < boundary
             psi[i] = Ψ(Bc1[1], Bc1[2], k1, grid[i])
         
         # Boundary in the middle 
