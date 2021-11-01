@@ -10,6 +10,7 @@ me=9.11e-31
 hbar=1.05e-34
 
 
+
 function Schrodinger1D(U, E, Bc2, a)
     #= U - Potentials of both states, E - Energy of Wavefunction, A2 & B2 - Boundary Conditions, m : mass
         Determines A1, B1 - First Boundary Reigon Coefficents given the paramters
