@@ -99,6 +99,7 @@ function nRegion(U, E, An, Bcn, step)
 
     for i in reverse(1:length(An))
 
+        # Handling first grid of the System
         if i == 1
             grid_temp = formGrid(0, step, upperLimit)
             psi_temp = generalisedWavefunction(grid_temp, Bc2, k1)
@@ -109,51 +110,43 @@ function nRegion(U, E, An, Bcn, step)
 
         # For each step into the potential array we calculate reflection between two reigons
         boundary = upperLimit - An[i]
-        #lowerLimit = boundary - An[i-1]
-
         grid_temp = formGrid(boundary, step, upperLimit)
-        #grid_1 = formGrid(lowerLimit, step, boundary)
-
+        
         # Getting Transfer Matrix and Boundary Conditions for n and n-1th reigon 
         Bc1, k1, k2 = Schrodinger1D(U[i-1 : i], E, Bcn, (upperLimit - An[i]))
 
         # Getting Wavefunction for the n-1th - n reigon 
         psi_temp = generalisedWavefunction(grid_temp, Bc2, k2)
-        #psi_1 = generalisedWavefunction(grid_1, Bc1, k1)
         
-        # Found a problem with the waefunction 
-        # the wavefcuntions in the middle won't be appended directly only the first and last would, the 
-        # others would just have a changed wave vector and boundary conditions
-
         # Append the values of the reigon to the start of the main grid
         prepend!(grid, grid_temp)
         prepend!(psi, psi_temp)
 
         upperLimit = boundary
         Bc2 = Bc1
-
     end
-
     return grid, psi
 end
 
-function plotSimulation(grid, psi)
+function plotSimulation(grid, psi, energy)
     #= Plots the Simulation of the Wavefunction through N Reigon Potential =#
     
-    display(plot(grid, real(psi)))
-    plot!(grid, imag(psi))
+    display(plot(grid, real(psi), title = "Wavefunction in one dimension, E = $energy", label = "Real part"))
+    xlabel!("Positon in grid (x)")
+    ylabel!("Wavefunction")
+    plot!(grid, imag(psi), label = "Imaginary part")
 end
 
 
 function default_simulation()
-    U = [0,2,0] * e
+    U = [3,0,3] * e
     E = [0.75, 1.5, 2.5] * e
     Bc2 = [1.0, 0.0]
     size_reigon = 3e-10 + 2e-9
-    An = [size_reigon, 5e-10, size_reigon]
+    An = [size_reigon, U[1], size_reigon]
 
-    grid, psi = nRegion(U, E[1], An, Bc2, 1e-11)
-    plotSimulation(grid, psi)
+    grid, psi = nRegion(U, 20*e, An, Bc2, 1e-11)
+    plotSimulation(grid, psi, 20*e)
 end
 
 default_simulation()

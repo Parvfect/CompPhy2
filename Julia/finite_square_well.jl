@@ -37,7 +37,7 @@ function new_rhs(k)
         t_1 = [calculate_rhs(i, j) for j in K]
         append!(t, t_1)
     end
-    return t
+    return t+
 end
 
 function new_lhs(a)
