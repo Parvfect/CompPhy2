@@ -3,14 +3,6 @@
 using Plots
 using LinearAlgebra
 
-# Constants
-e=1.6e-19
-me=9.11e-31
-# a=3e-10
-hbar=1.05e-34
-
-
-
 function Schrodinger1D(U, E, Bc2, a)
     #= U - Potentials of both states, E - Energy of Wavefunction, A2 & B2 - Boundary Conditions, m : mass
         Determines A1, B1 - First Boundary Reigon Coefficents given the paramters
@@ -31,7 +23,7 @@ function Schrodinger1D(U, E, Bc2, a)
     # Performing Matrix Multiplication and extracting values
     Bc1 = T * Bc2 
 
-    return Bc1, k1, k2
+    return Bc1, k1, k2, T
 end
 
 
@@ -59,15 +51,32 @@ function formTransferMatrix(k1, k2, a)
 end
      
     
-function transmissionProbability(t, k1, kn)
+function transmissionProbability(t, k0, kn)
     #= Calculates the Transmission Probability given the transfer matrix, arbitary Potential Values, Energies and the Boundary Conditions =#
-    return (modulus(1/ t[1,1])) * (modulus(1/ t[1,1])) * (kn / k1)
+    return (abs(1/ t)) * (abs(1/ t)) * (kn / k0)
 
 end
 
 function reflectionProbability(t, U, E, A2, B2)
     #= Calculates the Reflection Probability given the transfer matrix, arbitary Potential Values, Energies and the Boundary Conditions =#
     return (modulus(t[2,1]/t[1,1])) * (modulus(t[2,1]/t[1,1]))
+end
+
+
+function piecewisePotential(lowerLimit, upperLimit, n_reigons, potentialFunction)
+    #= Returns a potential array of an n_reigon approximation to the provided potential function that can be fed into an electron simulation=#
+
+    lengthReigon = (abs(lowerLimit) + upperLimit) / n_reigons
+    U = zeros(n_reigons)
+    ptr = lengthReigon/2
+
+    for i in 1:n_reigons
+        # Append the Potential Value for the midpoint of the ith reigon into the Potential Array
+        U[i] =  potentialFunction(ptr)
+        ptr += lengthReigon
+    end
+
+    return U, [lengthReigon for i in 1:n_reigons]
 end
 
 function generalisedWavefunction(grid, Bc, k)
@@ -96,15 +105,21 @@ function nRegion(U, E, An, Bcn, step)
     Bc2 = Bcn
     k1 = 0
     k2 = 0
+    kn = 0
+    t = 0
+    tp = 0
+    transmissionArr = zeros(0)
 
     for i in reverse(1:length(An))
-
+        
         # Handling first grid of the System
         if i == 1
             grid_temp = formGrid(0, step, upperLimit)
             psi_temp = generalisedWavefunction(grid_temp, Bc2, k1)
             prepend!(grid, grid_temp)
             prepend!(psi, psi_temp)
+            
+            tp =  transmissionProbability(t[1,1], k1, kn)
             break
         end
 
@@ -113,7 +128,7 @@ function nRegion(U, E, An, Bcn, step)
         grid_temp = formGrid(boundary, step, upperLimit)
         
         # Getting Transfer Matrix and Boundary Conditions for n and n-1th reigon 
-        Bc1, k1, k2 = Schrodinger1D(U[i-1 : i], E, Bcn, (upperLimit - An[i]))
+        Bc1, k1, k2, t = Schrodinger1D(U[i-1 : i], E, Bcn, (upperLimit - An[i]))
 
         # Getting Wavefunction for the n-1th - n reigon 
         psi_temp = generalisedWavefunction(grid_temp, Bc2, k2)
@@ -124,8 +139,13 @@ function nRegion(U, E, An, Bcn, step)
 
         upperLimit = boundary
         Bc2 = Bc1
+
+
+        if i == length(An)
+            kn = k2
+        end
     end
-    return grid, psi
+    return grid, psi, tp
 end
 
 function plotSimulation(grid, psi, energy)
@@ -138,15 +158,3 @@ function plotSimulation(grid, psi, energy)
 end
 
 
-function default_simulation()
-    U = [3,0,3] * e
-    E = [0.75, 1.5, 2.5] * e
-    Bc2 = [1.0, 0.0]
-    size_reigon = 3e-10 + 2e-9
-    An = [size_reigon, U[1], size_reigon]
-
-    grid, psi = nRegion(U, 20*e, An, Bc2, 1e-11)
-    plotSimulation(grid, psi, 20*e)
-end
-
-default_simulation()
