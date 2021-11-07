@@ -53,13 +53,22 @@ end
     
 function transmissionProbability(t, k0, kn)
     #= Calculates the Transmission Probability given the transfer matrix, arbitary Potential Values, Energies and the Boundary Conditions =#
-    return (abs(1/ t)) * (abs(1/ t)) * (kn / k0)
-
+    if isinf(t) || k0 == 0 || isinf(kn)
+        print("Breakout detected")
+    end 
+    a = modComplex(1/t) * modComplex(1/t) * (real(kn) /k0)
+    return a
 end
 
-function reflectionProbability(t, U, E, A2, B2)
+function modComplex(cn)
+    #= Returns the Modulus of a Complex Number =#
+    return sqrt(cn * conj(cn))
+end
+
+
+function reflectionProbability(t1, t2)
     #= Calculates the Reflection Probability given the transfer matrix, arbitary Potential Values, Energies and the Boundary Conditions =#
-    return (modulus(t[2,1]/t[1,1])) * (modulus(t[2,1]/t[1,1]))
+    return (abs(t2/t1)) * (abs(t2/t1))
 end
 
 
@@ -96,30 +105,33 @@ function formGrid(start, step, limit)
     return start:step:limit
 end
 
-function nRegion(U, E, An, Bcn, step)
+function nRegion(U, E, An, Bcn, step, lowerLimit = 0, upperLimit = 0)
     
     grid = zeros(0)
     psi = complex(zeros(0))
 
-    upperLimit = sum(An)
+    if lowerLimit == 0 
+        upperLimit = sum(An)
+    end
+
     Bc2 = Bcn
     k1 = 0
     k2 = 0
     kn = 0
     t = 0
     tp = 0
-    transmissionArr = zeros(0)
+    rp = 0
 
     for i in reverse(1:length(An))
         
         # Handling first grid of the System
         if i == 1
-            grid_temp = formGrid(0, step, upperLimit)
+            grid_temp = formGrid(lowerLimit, step, upperLimit)
             psi_temp = generalisedWavefunction(grid_temp, Bc2, k1)
             prepend!(grid, grid_temp)
             prepend!(psi, psi_temp)
-            
             tp =  transmissionProbability(t[1,1], k1, kn)
+            rp = reflectionProbability(t[1,1], t[2,1])
             break
         end
 
@@ -145,7 +157,8 @@ function nRegion(U, E, An, Bcn, step)
             kn = k2
         end
     end
-    return grid, psi, tp
+
+    return grid, psi, tp, rp
 end
 
 function plotSimulation(grid, psi, energy)
