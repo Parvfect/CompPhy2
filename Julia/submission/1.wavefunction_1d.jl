@@ -21,7 +21,7 @@ end
 function piecewisePotential(lowerLimit, upperLimit, n_reigons, potentialFunction)
     lengthReigon = (abs(lowerLimit) + upperLimit) / n_reigons
     U = zeros(n_reigons)
-    ptr = lengthReigon/2
+    ptr = lowerLimit + lengthReigon/2
 
     for i in 1:n_reigons
         U[i] =  potentialFunction(ptr)
@@ -85,7 +85,7 @@ function plotSimulation(grid, psi, energy)
     display(plot(grid, real(psi), title = "Wavefunction in one dimension, E = $energy", label = "Real part"))
     xlabel!("Positon in grid (x)")
     ylabel!("Wavefunction")
-    plot!(grid, imag(psi), label = "Imaginary part")
+    #plot!(grid, imag(psi), label = "Imaginary part")
 end
 
 
