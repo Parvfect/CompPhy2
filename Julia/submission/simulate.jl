@@ -1,4 +1,4 @@
-include("1.wavefunction_1d.jl")
+include("wavefunction.jl")
 include("potentials.jl")
 
 

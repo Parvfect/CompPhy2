@@ -1,4 +1,5 @@
 
+include("wavefunction.jl")
 
 function boundStates(E, t11arr)
     #= Takes an input of the array of the t11 values and plots the t11 and returns the bound state energies =#
@@ -60,6 +61,26 @@ function getNthBoundStateEnergy(n, E, t11arr, acceptableError)
         =#
         println("Error: Could not find the energy of the nth bound state")
         return -1
+end
+
+
+function getAllBoundStates(n, E, t11arr, acceptableError)
+
+    energyEigenfunctions = []
+
+    while n*2 <= length(boundStates(E, t11arr))
+        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, acceptableError))
+        n = n + 1
+    end
+
+    for i in 1:length(energyEigenfunctions)
+        if energyEigenfunctions[i] == -1
+            println("Error: Could not find the energy of the $i th bound state")
+            return -1
+        end
+    end
+
+    return energyEigenfunctions
 end
 
 function boundStatesCheck()

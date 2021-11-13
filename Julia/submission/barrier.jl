@@ -1,4 +1,5 @@
 
+
 #= 
 Bound States
 Wavefunction for the bound states
@@ -13,12 +14,12 @@ include("bound_states.jl")
 energyEigenfunctions = []
 
 parameters = [
-    U = [3, 0, 3] 
-    An = [4, 8, 4]
+    U = [0, 3, 0] 
+    An = [2, 5, 2]
     Bn = [1.0, 0.0]
 ]
 
-type = "Finite Well"
+type = "Barrier"
 
 
 function test()
