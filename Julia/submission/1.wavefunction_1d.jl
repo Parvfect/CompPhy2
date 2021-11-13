@@ -115,8 +115,9 @@ end
 function transmissionProbability(t, k0, kn)
     if isinf(t) || k0 == 0 || isinf(kn)
         print("Breakout detected")
+        return 0
     end 
-    a = modComplex(1/t) * modComplex(1/t) * (real(kn) /k0)
+    a = abs(1/t) * abs(1/t) #* ((kn) /k0)
     return a
 end
 
