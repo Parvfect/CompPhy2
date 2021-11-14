@@ -19,57 +19,68 @@ function boundStates(E, t11arr)
     return energyBoundStates
 end
 
-function getNthBoundStateEnergy(n, E, t11arr, acceptableError)
+function getNthBoundStateEnergy(n, E, t11arr, acceptableError, U, An)
     #= Gets the nth bound state Sign crossover for t11. Repeats simulation between the two energies till energy eigenfunction is found =#
         
-        energyBoundStates = boundStates(E, t11arr)
-        if n*2 > length(energyBoundStates)
-            println("Error: n is too large")
-            return -1
-        end
-
-        # Get the energy of the nth bound state
-        lowerEnergy = energyBoundStates[n*2-1]
-        higherEnergy = energyBoundStates[n*2]
-
-        if abs(t11arr[lowerEnergy]) <= acceptableError
-            println("Energy Eigenfunction found at $lowerEnergy ev")
-            return lowerEnergy
-
-        elseif abs(t11arr[higherEnergy]) <= acceptableError
-            println("Energy Eigenfunction found at $higherEnergy ev")
-            return higherEnergy
-        end
-            
-
-        iterations = 0
-
-        #=
-        while iterations < 10
-        
-            E = createRange(lowerEnergy, higherEnergy, step/(10^iterations))
-
-            t11 = energyLoop(E, U, An, Bcn, upperLimit)
-
-            for i in 1:length(t11)
-                if abs(t11[i]) <= accetableError 
-                    println("Energy Eigenfunction found at $(E[i]) ev")
-                    return E[i]
-                end
-            end
-        end
-        =#
-        println("Error: Could not find the energy of the nth bound state")
+    energyBoundStates = boundStates(E, t11arr)
+    if n*2 > length(energyBoundStates)
+        println("Error: n is too large")
         return -1
+    end
+
+    # Get the energy of the nth bound state
+    lowerEnergy = energyBoundStates[n*2-1]
+    higherEnergy = energyBoundStates[n*2]
+
+    if abs(t11arr[lowerEnergy]) <= acceptableError
+        println("Energy Eigenfunction found at $lowerEnergy ev")
+        return lowerEnergy
+
+    elseif abs(t11arr[higherEnergy]) <= acceptableError
+        println("Energy Eigenfunction found at $higherEnergy ev")
+        return higherEnergy
+    end
+        
+
+    iterations = 0
+
+    while iterations < 10
+    
+        E = createRange(lowerEnergy, higherEnergy, step/(10^iterations))
+
+        t11 = energyLoop(E, U, An, [1.0, 0.0])
+
+        for i in 1:length(t11)
+            if abs(t11[i]) <= accetableError 
+                println("Energy Eigenfunction found at $(E[i]) ev")
+                return E[i]
+            end
+    end
+    
+    println("Error: Could not find the energy of the nth bound state")
+    return -1
+end
+
+function energyLoop(E, U, An)
+    
+    t11arr = zeros(0)
+
+    @time for i in E
+        t11arr = append!(t11Sim(U, i, An, [1.0, 0.0], 1e-2))
+    end
+
+    return t11arr
 end
 
 
-function getAllBoundStates(n, E, t11arr, acceptableError)
+function getAllBoundStates(n, E, acceptableError, U, An)
 
     energyEigenfunctions = []
 
+    t11arr = energyLoop(E, U, An)
+
     while n*2 <= length(boundStates(E, t11arr))
-        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, acceptableError))
+        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, acceptableError, U, An))
         n = n + 1
     end
 
@@ -100,12 +111,13 @@ end
 
 function getNthBoundStateEnergyCheck()
     #= Checks the getNthBoundStateEnergy function =#
+
     t11 = [2,1,0,-1,-2,-1,0,1,2,1,0,-1,-2.3e-5,0]
     E = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
 
     en = boundStates(E, t11)
 
-    if getNthBoundStateEnergy(1, E, t11, 1e-3) == 3
+    if getNthBoundStateEnergy(1, E, t11, 1e-3, U, An) == 3
         println("getNthBoundStateEnergy test passed")
     else
         println("getNthBoundStateEnergy test failed")
