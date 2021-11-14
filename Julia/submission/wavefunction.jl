@@ -21,7 +21,8 @@ end
 function formTransferMatrix(k1, k2, a)
     k1k2 = k1 + k2
     k1_k2 = k1 - k2
-    return 1/2k1 * [k1k2*exp(-1im*a*k1_k2) k1_k2*exp(-1im*a*k1k2) ; k1_k2*exp(1im*a*k1k2) k1k2*exp(1im*a*k1_k2)]
+    t =  1/2k1 * [k1k2*exp(-1im*a*k1_k2) k1_k2*exp(-1im*a*k1k2) ; k1_k2*exp(1im*a*k1k2) k1k2*exp(1im*a*k1_k2)]
+    return t
 end 
     
 function transmissionProbability(t, k0, kn)
@@ -105,8 +106,7 @@ function t11Sim(U, E, An, Bcn, step)
         grid_temp = formGrid(boundary, step, upperLimit)
 
         if i != 1
-            Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, (upperLimit - An[i]))
-            psi_temp = generalisedWavefunction(grid_temp, Bc2, k2)  
+            Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, boundary)
         else
             return t[1,1]
         end

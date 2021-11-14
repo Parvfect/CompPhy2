@@ -12,8 +12,8 @@ include("bound_states.jl")
 
 energyEigenfunctions = []
 
-U = [3.0, 0.0, 3.0] 
-An = [4, 8, 4]
+U = [3.0, 0.0, 3.0] * e
+An = [2, 8, 2]* 1e-9
 Bn = [1.0, 0.0]
 
 

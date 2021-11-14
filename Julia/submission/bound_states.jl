@@ -1,13 +1,14 @@
 
 include("useful_methods.jl")
 include("wavefunction.jl")
+include("constants.jl")
 using Base
 
 function boundStates(E, t11arr)
     #= Takes an input of the array of the t11 values and plots the t11 and returns the bound state energies =#
 
     # Plot the t11 values over E
-    #display(plot!(E, t11arr, xlabel = "Energies(eV) ", ylabel = "t11", title = "Variation of the t11 over Energy Range"))
+    display(plot!(E, t11arr, xlabel = "Energies(eV) ", ylabel = "t11", title = "Variation of the t11 over Energy Range"))
     oldValue = t11arr[1]
     energyBoundStates = zeros(0)
     for i in 1:length(t11arr)
@@ -68,7 +69,7 @@ function energyLoop(E, U, An)
     t11arr = zeros(0)
 
     @time for i in E
-        t11arr = append!(t11arr, real(t11Sim(U, i, An, [1.0, 0.0], 1e-2)))
+        t11arr = append!(t11arr, real(t11Sim(U, i, An, [1.0, 0.0], 1e-11)))
     end
 
     return t11arr
@@ -79,7 +80,7 @@ function getAllBoundStates(U, An, acceptableError)
 
     energyEigenfunctions = []
 
-    E = createRange(0.0, maximum(U), 0.01)
+    E = createRange(0.0, maximum(U), 1e-11)
 
     t11arr = energyLoop(E, U, An)
 
