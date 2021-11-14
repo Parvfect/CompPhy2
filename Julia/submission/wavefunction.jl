@@ -1,6 +1,7 @@
 using Plots
 using LinearAlgebra
 
+include("constants.jl")
 
 """ Helper Methods """
 

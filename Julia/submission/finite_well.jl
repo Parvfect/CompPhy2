@@ -12,11 +12,10 @@ include("bound_states.jl")
 
 energyEigenfunctions = []
 
-parameters = [
-    U = [3, 0, 3] 
-    An = [4, 8, 4]
-    Bn = [1.0, 0.0]
-]
+U = [3.0, 0.0, 3.0] 
+An = [4, 8, 4]
+Bn = [1.0, 0.0]
+
 
 type = "Finite Well"
 
@@ -24,7 +23,7 @@ type = "Finite Well"
 function test()
    #= Checks if the finite well gets at least 1 bound state =#
 
-    energyEigenfuncitons = getAllBoundStates(parameters)
+    energyEigenfuncitons = getAllBoundStates(U, An, 1e-2)
 
     if length(energyEigenfuncitons) > 0
         print("Finite well test passed with $(length(energyEigenfunctions)) bound states")
@@ -36,3 +35,5 @@ end
 
 function unboundStates()
 end
+
+test()
