@@ -8,7 +8,8 @@ function boundStates(E, t11arr)
     #= Takes an input of the array of the t11 values and plots the t11 and returns the bound state energies =#
 
     # Plot the t11 values over E
-    display(plot!(E, t11arr, xlabel = "Energies(eV) ", ylabel = "t11", title = "Variation of the t11 over Energy Range"))
+    #display(plot!(E, real(t11arr), xlabel = "Energies(eV) ", ylabel = "t11", title = "Variation of the t11 over Energy Range"))
+    
     oldValue = t11arr[1]
     energyBoundStates = zeros(0)
     for i in 1:length(t11arr)
@@ -33,11 +34,11 @@ function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError)
     lowerEnergy = energyBoundStates[n*2-1]
     higherEnergy = energyBoundStates[n*2]
 
-    if abs(t11arr[lowerEnergy]) <= acceptableError
+    if abs(lowerEnergy) <= acceptableError
         println("Energy Eigenfunction found at $lowerEnergy ev")
         return lowerEnergy
 
-    elseif abs(t11arr[higherEnergy]) <= acceptableError
+    elseif abs(higherEnergy) <= acceptableError
         println("Energy Eigenfunction found at $higherEnergy ev")
         return higherEnergy
     end
@@ -48,16 +49,18 @@ function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError)
     # Find Energy Eigenfunction between the two energies
     while iterations < 10
     
-        E = createRange(lowerEnergy, higherEnergy, step/(10^iterations))
+        E = createRange(lowerEnergy, higherEnergy, 0.01/(10^iterations))
 
         t11 = energyLoop(E, U, An)
 
         for i in 1:length(t11)
-            if abs(t11[i]) <= accetableError 
+            if abs(t11[i]) <= acceptableError 
                 println("Energy Eigenfunction found at $(E[i]) ev")
                 return E[i]
             end
         end
+
+        iterations += 1
     end
     
     println("Error: Could not find the energy of the nth bound state")
@@ -67,12 +70,17 @@ end
 function energyLoop(E, U, An)
     
     t11arr = zeros(0)
+    tp = zeros(0)
+    rp = zeros(0)
 
     @time for i in E
-        t11arr = append!(t11arr, real(t11Sim(U, i, An, [1.0, 0.0], 1e-11)))
+        t11, tp, rp =  t11Sim(U, i, An, [1.0, 0.0], 1e-11)
+        t11arr = append!(t11arr, real(t11))
+        tp = append!(tp, real(tp))
+        rp = append!(rp, real(rp))
     end
 
-    return t11arr
+    return t11arr, tp, rp
 end
 
 
@@ -80,14 +88,14 @@ function getAllBoundStates(U, An, acceptableError)
 
     energyEigenfunctions = []
 
-    E = createRange(0.0, maximum(U), 1e-11)
+    E = createRange(0.01, maximum(U), 1e-2)
 
-    t11arr = energyLoop(E, U, An)
+    t11arr, tp, rp = energyLoop(E, U, An)
 
     n = 1
 
     while n*2 <= length(boundStates(E, t11arr))
-        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, acceptableError, U, An))
+        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError))
         n = n + 1
     end
 
@@ -98,7 +106,7 @@ function getAllBoundStates(U, An, acceptableError)
         end
     end
 
-    return energyEigenfunctions
+    return energyEigenfunctions, tp, rp
 end
 
 function boundStatesCheck()

@@ -6,7 +6,7 @@ include("constants.jl")
 """ Helper Methods """
 
 function Ψ(A, B, k, x)
-    return A*exp(im * k* x) + B * exp(- im * k* x) 
+    return A*exp(1im * k* x) + B * exp(- 1im * k* x) 
 end
 
 function probabilityAmplitude(v)
@@ -14,7 +14,7 @@ function probabilityAmplitude(v)
 end
     
 function getWaveVector(E, U)
-    return sqrt(2* me *(Complex(E - U)))/hbar
+    return (sqrt(2* me *(Complex(E - U)))/hbar)e-9
 end
 
 
@@ -51,7 +51,6 @@ function transferMatrixMethod(U, E, Bc2, a)
 
     k1 = getWaveVector(E, U[1])
     k2 = getWaveVector(E, U[2])
-    
     T = formTransferMatrix(k1, k2, a)
     Bc1 = [A1, B1]
 
@@ -78,10 +77,10 @@ function plotWavefunction(grid, psi, energy)
     display(plot(grid, real(psi), title = "Wavefunction in one dimension, E = $energy", label = "Real part"))
     xlabel!("Positon in grid (x)")
     ylabel!("Wavefunction")
-    #plot!(grid, imag(psi), label = "Imaginary part")
+    plot!(grid, imag(psi), label = "Imaginary part")
 end
 
-function plotTprp(tp, rp, energy)
+function plotTprp(tp, rp)
         
     display(plot(energy, tp, label = "Transmission probability", xlabel = "Energy", ylabel = "Probability"))
     xlabel!("Energy")
@@ -96,7 +95,7 @@ function t11Sim(U, E, An, Bcn, step)
     
     grid = zeros(0)
     psi = complex(zeros(0))
-    Bc2, Bc1, k1, k2, t = Bcn, 0, 0, 0, 0
+    Bc2, Bc1, k1, k2, t, kn = Bcn, 0, 0, 0, 0, 0
 
     upperLimit = sum(An)
     
@@ -108,9 +107,13 @@ function t11Sim(U, E, An, Bcn, step)
         if i != 1
             Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, boundary)
         else
-            return t[1,1]
+            return t[1,1], transmissionProbability(t[1,1], k1, kn), reflectionProbability(t[1,1], t[2,2])
         end
         
+        if i== length(An)
+            kn = k2
+        end
+
         upperLimit = boundary
         Bc2 = Bc1
     end
