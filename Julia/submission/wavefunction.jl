@@ -14,7 +14,7 @@ function probabilityAmplitude(v)
 end
     
 function getWaveVector(E, U)
-    return (sqrt(2* me *(Complex(E - U)))/hbar)e-9
+    return (sqrt(2* me *(Complex(E - U)*e))/hbar)
 end
 
 
