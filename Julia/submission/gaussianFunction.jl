@@ -1,28 +1,24 @@
 
 include("potentials.jl")
+include("bound_states.jl")
+
+new_gaussian = createGaussianPotential(2.5, 0.2)
+Bcn = [1.0, 0.0]
+U, An = piecewisePotential(0, 5, 101, new_gaussian)
 
 
-parameters = [
-    Bcn = [1.0, 0.0],
-    U, An = piecewisePotential(0, 5, 11, gaussianPotential)
-]
-
-function gaussianFunction()
-    # Scale x = xe-10
-    new_gaussian = createGaussianPotential(5, 2.5, 1)
-    Bcn = [1.0, 0.0]
-    U, An = piecewisePotential(0, 5, 11, new_gaussian)
-
-    transmissionArr = complex(zeros(0))
-    reflectionArr = complex(zeros(0))
-    E = 0:0.01:10
-        
-    @time for i in E
-        grid, psi, tp, rp = nRegion(U, i, An, Bcn, 1e-2, 5)
-        append!(transmissionArr, tp)
-        append!(reflectionArr, rp)
+function test()
+    #= Checks if the finite well gets at least 1 bound state =#
+ 
+    energyEigenfunctions = getAllBoundStates(U, An, 1e-2)
+    
+    if length(energyEigenfunctions) > 0
+        print("Gaussian test passed with $(length(energyEigenfunctions)) bound states")
+        grid, psi = psiSim(U, energyEigenfunctions[2], An, Bn, 0.01)
+        #plotWavefunction(grid, psi, energyEigenfunctions[2])
+    else
+        print("Gaussian test failed")
     end
+ end
 
-    plot(E, real(transmissionArr), title = "Transmission Probability", xlabel = "E", ylabel = "T(E)", label = "TP")
-    #plot(E, real(reflectionArr), label = "RP")
-end
+ test()

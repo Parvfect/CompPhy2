@@ -4,11 +4,8 @@ m = 9.1e-31
 
 using Statistics
 
-function createGaussianPotential(xarr)
+function createGaussianPotential(mu, sigma)
     
-    mu = mean(xarr)
-    sigma = stdm(AbstractArray(xarr))
-
     return x -> 1/(sigma * sqrt(2* pi)) * exp(-((x-mu)/sigma)^2/2)
 end
 

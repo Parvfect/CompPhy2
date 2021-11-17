@@ -14,7 +14,7 @@ function probabilityAmplitude(v)
 end
     
 function getWaveVector(E, U)
-    return (sqrt(2* me *(Complex(E - U)*e))/hbar)
+    return (sqrt(2* me *(Complex(E - U)))/hbar)e-9
 end
 
 
@@ -80,7 +80,7 @@ function plotWavefunction(grid, psi, energy)
     plot!(grid, imag(psi), label = "Imaginary part")
 end
 
-function plotTprp(tp, rp)
+function plotTprp(tp, rp, energy)
         
     display(plot(energy, tp, label = "Transmission probability", xlabel = "Energy", ylabel = "Probability"))
     xlabel!("Energy")
@@ -107,45 +107,18 @@ function t11Sim(U, E, An, Bcn, step)
         if i != 1
             Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, boundary)
         else
+            #println(t[1,1], k1, kn)
             return t[1,1], transmissionProbability(t[1,1], k1, kn), reflectionProbability(t[1,1], t[2,2])
         end
         
         if i== length(An)
-            kn = k2
+            kn = k1
         end
 
         upperLimit = boundary
         Bc2 = Bc1
     end
 
-end
-
-function tprpSim(U, E, An, Bcn, step)
-    
-    Bc2, Bc1, k1, k2, kn, t, tp, rp = Bcn, 0, 0, 0, 0, 0, 0, 0
-
-    upperLimit = sum(An)
-
-    for i in reverse(1:length(An))
-        
-        boundary = upperLimit - An[i]
-        grid_temp = formGrid(boundary, step, upperLimit)
-
-        if i != 1
-            Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, (upperLimit - An[i]))
-        else
-            tp =  transmissionProbability(t[1,1], k1, kn)
-            rp = reflectionProbability(t[1,1], t[2,1])    
-        end
-        
-        if i == length(An)
-            kn = k2
-        end
-        upperLimit = boundary
-        Bc2 = Bc1
-    end
-    
-    return tp, rp
 end
 
 function psiSim(U, E, An, Bcn, step)
@@ -168,6 +141,9 @@ function psiSim(U, E, An, Bcn, step)
             psi_temp = generalisedWavefunction(grid_temp, Bc2, k1)
         end
 
+        if i == 100
+            println("Suck a dic bitch ", k1)
+        end
         prepend!(grid, grid_temp)
         prepend!(psi, psi_temp)
 

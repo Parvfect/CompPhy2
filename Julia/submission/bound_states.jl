@@ -51,7 +51,7 @@ function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError)
     
         E = createRange(lowerEnergy, higherEnergy, 0.01/(10^iterations))
 
-        t11 = energyLoop(E, U, An)
+        t11, tp, rp = energyLoop(E, U, An)
 
         for i in 1:length(t11)
             if abs(t11[i]) <= acceptableError 
@@ -70,17 +70,17 @@ end
 function energyLoop(E, U, An)
     
     t11arr = zeros(0)
-    tp = zeros(0)
-    rp = zeros(0)
+    tp_arr = zeros(0)
+    rp_arr = zeros(0)
 
-    @time for i in E
+    for i in E
         t11, tp, rp =  t11Sim(U, i, An, [1.0, 0.0], 1e-11)
         t11arr = append!(t11arr, real(t11))
-        tp = append!(tp, real(tp))
-        rp = append!(rp, real(rp))
+        tp_arr = append!(tp_arr, real(tp))
+        rp_arr = append!(rp_arr, real(rp))
     end
 
-    return t11arr, tp, rp
+    return t11arr, tp_arr, rp_arr
 end
 
 
@@ -88,10 +88,10 @@ function getAllBoundStates(U, An, acceptableError)
 
     energyEigenfunctions = []
 
-    E = createRange(0.01, maximum(U), 1e-2)
+    E = createRange(0.01, 1.99, 1e-2)
 
     t11arr, tp, rp = energyLoop(E, U, An)
-
+    print(t11arr)
     n = 1
 
     while n*2 <= length(boundStates(E, t11arr))
@@ -106,7 +106,9 @@ function getAllBoundStates(U, An, acceptableError)
         end
     end
 
-    return energyEigenfunctions, tp, rp
+    display(plotTprp(tp, rp, E))
+
+    return energyEigenfunctions
 end
 
 function boundStatesCheck()
