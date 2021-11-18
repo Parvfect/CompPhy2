@@ -6,7 +6,6 @@ include("constants.jl")
 """ Helper Methods """
 
 function Ψ(A, B, k, x)
-    println(k)
     return A*exp(1im * k* x) + B * exp(- 1im * k* x) 
 end
 
@@ -45,7 +44,7 @@ end
 
 """ Integration Methods """
 
-function transferMatrixMethod(U, E, Bc2, a)
+function transferMatrixMethod(k1, k2, Bc2, a)
    
     A1 = 0 
     B1 = 0
@@ -61,15 +60,12 @@ function transferMatrixMethod(U, E, Bc2, a)
     return Bc1, k1, k2, T
 end
 
-function transferMatrixMethod2(U, E, Bc2, a)
+function transferMatrixMethod2(k1, k2, Bc2, a)
    
     A1 = 0 
     B1 = 0
-
-    k1 = getWaveVector(E, U[1])
-    k2 = getWaveVector(E, U[2])
-    println(k1)
     T = formTransferMatrix(k1, k2, a)
+    
     Bc1 = [A1, B1]
 
     Bc1 = T * Bc2 
@@ -95,7 +91,7 @@ function plotWavefunction(grid, psi, energy)
     display(plot(grid, real(psi), title = "Wavefunction in one dimension, E = $energy", label = "Real part"))
     xlabel!("Positon in grid (x)")
     ylabel!("Wavefunction")
-    plot!(grid, imag(psi), label = "Imaginary part")
+    #plot!(grid, imag(psi), label = "Imaginary part")
 end
 
 function plotTprp(tp, rp, energy)
@@ -143,14 +139,17 @@ function forwardPsiSim(U, E, An, Bcn, step)
     k = [getWaveVector(E, i) for i in U]
     
     # get all the boundary conditions
-    Bc = []
+    Bc = zeros(length(k),2)
     Bc = append!(Bc, Bcn)
     boundary = An[1]
 
     for i in 1:length(k)
-        Bc = append!(Bc, transferMatrixMethod2(U[i], E, Bc[i], boundary))
+        t = transferMatrixMethod2(U[i], E, Bc[i], boundary)
+        Bc[i, 1], Bc[i,2] = t[1],t[2]
         boundary += An[i+1]
     end
+
+    return k, Bc
 end
 
 function psiSim(U, E, An, Bcn, step)
