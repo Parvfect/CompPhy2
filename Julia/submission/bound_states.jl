@@ -21,7 +21,7 @@ function boundStates(E, t11arr)
     return energyBoundStates
 end
 
-function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError)
+function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError, step)
     #= Gets the nth bound state Sign crossover for t11. Repeats simulation between the two energies till energy eigenfunction is found =#
         
     energyBoundStates = boundStates(E, t11arr)
@@ -51,7 +51,7 @@ function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError)
     
         E = createRange(lowerEnergy, higherEnergy, 0.01/(10^iterations))
 
-        t11, tp, rp = energyLoop(E, U, An)
+        t11, tp, rp = energyLoop(E, U, An, step)
 
         for i in 1:length(t11)
             if abs(t11[i]) <= acceptableError 
@@ -67,14 +67,14 @@ function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError)
     return -1
 end
 
-function energyLoop(E, U, An)
+function energyLoop(E, U, An, step)
     
     t11arr = zeros(0)
     tp_arr = zeros(0)
     rp_arr = zeros(0)
 
     for i in E
-        t11, tp, rp =  t11Sim(U, i, An, [1.0, 0.0], 1e-11)
+        t11, tp, rp =  t11Sim(U, i, An, [1.0, 0.0], 1e-6)
         t11arr = append!(t11arr, real(t11))
         tp_arr = append!(tp_arr, real(tp))
         rp_arr = append!(rp_arr, real(rp))
@@ -84,18 +84,15 @@ function energyLoop(E, U, An)
 end
 
 
-function getAllBoundStates(U, An, acceptableError)
+function getAllBoundStates(U, E, An, acceptableError, step)
 
     energyEigenfunctions = []
 
-    E = createRange(0.01, 1.99, 1e-2)
-
-    t11arr, tp, rp = energyLoop(E, U, An)
-    print(t11arr)
+    t11arr, tp, rp = energyLoop(E, U, An, step)
     n = 1
 
     while n*2 <= length(boundStates(E, t11arr))
-        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError))
+        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError, step))
         n = n + 1
     end
 
@@ -106,7 +103,7 @@ function getAllBoundStates(U, An, acceptableError)
         end
     end
 
-    display(plotTprp(tp, rp, E))
+    #display(plotTprp(tp, rp, E))
 
     return energyEigenfunctions
 end

@@ -6,6 +6,7 @@ include("constants.jl")
 """ Helper Methods """
 
 function Ψ(A, B, k, x)
+    println(k)
     return A*exp(1im * k* x) + B * exp(- 1im * k* x) 
 end
 
@@ -51,12 +52,29 @@ function transferMatrixMethod(U, E, Bc2, a)
 
     k1 = getWaveVector(E, U[1])
     k2 = getWaveVector(E, U[2])
+    println(k1)
     T = formTransferMatrix(k1, k2, a)
     Bc1 = [A1, B1]
 
     Bc1 = T * Bc2 
 
     return Bc1, k1, k2, T
+end
+
+function transferMatrixMethod2(U, E, Bc2, a)
+   
+    A1 = 0 
+    B1 = 0
+
+    k1 = getWaveVector(E, U[1])
+    k2 = getWaveVector(E, U[2])
+    println(k1)
+    T = formTransferMatrix(k1, k2, a)
+    Bc1 = [A1, B1]
+
+    Bc1 = T * Bc2 
+
+    return Bc1
 end
 
 function generalisedWavefunction(grid, Bc, k)
@@ -107,12 +125,11 @@ function t11Sim(U, E, An, Bcn, step)
         if i != 1
             Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, boundary)
         else
-            #println(t[1,1], k1, kn)
             return t[1,1], transmissionProbability(t[1,1], k1, kn), reflectionProbability(t[1,1], t[2,2])
         end
         
         if i== length(An)
-            kn = k1
+            kn = k2
         end
 
         upperLimit = boundary
@@ -121,10 +138,26 @@ function t11Sim(U, E, An, Bcn, step)
 
 end
 
+function forwardPsiSim(U, E, An, Bcn, step)
+
+    k = [getWaveVector(E, i) for i in U]
+    
+    # get all the boundary conditions
+    Bc = []
+    Bc = append!(Bc, Bcn)
+    boundary = An[1]
+
+    for i in 1:length(k)
+        Bc = append!(Bc, transferMatrixMethod2(U[i], E, Bc[i], boundary))
+        boundary += An[i+1]
+    end
+end
+
 function psiSim(U, E, An, Bcn, step)
     
     grid = zeros(0)
     psi = complex(zeros(0))
+    k
     Bc2, Bc1, k1, k2 = Bcn, 0, 0, 0, 0
 
     upperLimit = sum(An)
