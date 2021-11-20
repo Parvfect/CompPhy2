@@ -9,14 +9,9 @@ function Ψ(A, B, k, x)
     return A*exp(1im * k* x) + B * exp(- 1im * k* x) 
 end
 
-function probabilityAmplitude(v)
-    return dot(v, conj(v))
-end
-    
 function getWaveVector(E, U)
     return (sqrt(2* me *(Complex(E - U)))/hbar)e-9
 end
-
 
 function formTransferMatrix(k1, k2, a)
     k1k2 = k1 + k2
@@ -29,57 +24,22 @@ function transmissionProbability(t, k0, kn)
     return abs(1/t) * abs(1/t) * ((kn) /k0)
 end
 
-function modComplex(cn)
-    return sqrt(cn * conj(cn))
-end
-
 function reflectionProbability(t1, t2)
     return (abs(t2/t1)) * (abs(t2/t1))
 end
 
-function formGrid(start, step, limit)
-    return start:step:limit
-end
-
-
 """ Integration Methods """
 
 function transferMatrixMethod(k1, k2, Bc2, a)
-   
-    A1 = 0 
-    B1 = 0
-
-    k1 = getWaveVector(E, U[1])
-    k2 = getWaveVector(E, U[2])
-    println(k1)
     T = formTransferMatrix(k1, k2, a)
-    Bc1 = [A1, B1]
-
-    Bc1 = T * Bc2 
-
-    return Bc1, k1, k2, T
+    return T, T * Bc2 
 end
 
-function transferMatrixMethod2(k1, k2, Bc2, a)
-   
-    A1 = 0 
-    B1 = 0
-    T = formTransferMatrix(k1, k2, a)
-    
-    Bc1 = [A1, B1]
-
-    Bc1 = T * Bc2 
-
-    return Bc1
-end
-
-function generalisedWavefunction(grid, Bc, k)
-    psi = complex(zeros(length(grid)))
-    
+function generalisedWavefunction(grid, A, B, k)
+    psi = complex(zeros(length(grid)))    
     for i in 1:length(grid)
-        psi[i] = Ψ(Bc[1], Bc[2], k, grid[i])
+        psi[i] = Ψ(A, B, k, grid[i])
     end 
-
     return psi
 end
 
@@ -87,7 +47,6 @@ end
 """ Plotting functions """
 
 function plotWavefunction(grid, psi, energy)
-    
     display(plot(grid, real(psi), title = "Wavefunction in one dimension, E = $energy", label = "Real part"))
     xlabel!("Positon in grid (x)")
     ylabel!("Wavefunction")
@@ -95,94 +54,47 @@ function plotWavefunction(grid, psi, energy)
 end
 
 function plotTprp(tp, rp, energy)
-        
     display(plot(energy, tp, label = "Transmission probability", xlabel = "Energy", ylabel = "Probability"))
     xlabel!("Energy")
     ylabel!("Probability")
     plot!(energy, rp, label = "Reflection probability")
 end
 
+function plotT11(t11, energy)
+    display(plot(energy, t11, label = "T11", xlabel = "Energy", ylabel = "Variation of T[1,1] over energy range"))
+    xlabel!("Energy")
+    ylabel!("T[1,1]")
+end
 
 """ n reigon simulations """
 
-function t11Sim(U, E, An, Bcn, step)
+function solveTMM(U, E, An, Bcn, step)
     
-    grid = zeros(0)
-    psi = complex(zeros(0))
-    Bc2, Bc1, k1, k2, t, kn = Bcn, 0, 0, 0, 0, 0
-
-    upperLimit = sum(An)
-    
-    for i in reverse(1:length(An))
-        
-        boundary = upperLimit - An[i]
-        grid_temp = formGrid(boundary, step, upperLimit)
-
-        if i != 1
-            Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, boundary)
-        else
-            return t[1,1], transmissionProbability(t[1,1], k1, kn), reflectionProbability(t[1,1], t[2,2])
-        end
-        
-        if i== length(An)
-            kn = k2
-        end
-
-        upperLimit = boundary
-        Bc2 = Bc1
-    end
-
-end
-
-function forwardPsiSim(U, E, An, Bcn, step)
-
     k = [getWaveVector(E, i) for i in U]
-    
-    # get all the boundary conditions
-    Bc = zeros(length(k),2)
-    Bc = append!(Bc, Bcn)
-    boundary = An[1]
-
-    for i in 1:length(k)
-        t = transferMatrixMethod2(U[i], E, Bc[i], boundary)
-        Bc[i, 1], Bc[i,2] = t[1],t[2]
-        boundary += An[i+1]
-    end
-
-    return k, Bc
-end
-
-function psiSim(U, E, An, Bcn, step)
-    
-    grid = zeros(0)
-    psi = complex(zeros(0))
-    k
-    Bc2, Bc1, k1, k2 = Bcn, 0, 0, 0, 0
-
+    A, B = zeros(length(U)), zeros(length(U))
+    T, Bc2 = 0, Bcn
     upperLimit = sum(An)
-
+    
     for i in reverse(1:length(An))
-        
-        boundary = upperLimit - An[i]
-        grid_temp = formGrid(boundary, step, upperLimit)
-
-        if i != 1
-            Bc1, k1, k2, t = transferMatrixMethod(U[i-1 : i], E, Bc2, (upperLimit - An[i]))
-            psi_temp = generalisedWavefunction(grid_temp, Bc2, k2)  
-        else
-            psi_temp = generalisedWavefunction(grid_temp, Bc2, k1)
+        A[i], B[i] = Bc2[1], Bc2[2]
+        if i == 1
+            return k, A, B, T[1,1] # Would need to be changed for rp
         end
-
-        if i == 100
-            println("Suck a dic bitch ", k1)
-        end
-        prepend!(grid, grid_temp)
-        prepend!(psi, psi_temp)
-
-        upperLimit = boundary
+        Bc1, k1, k2, t = transferMatrixMethod(k[i], k[i-1], Bc2, upperLimit-An[i])
+        upperLimit -= An[i]
         Bc2 = Bc1
     end
-    
-    return grid, psi
 end
 
+function energyLoop(E, U, An, step)
+    
+    t11arr, k_arr, A_arr, B_arr = zeros(0), zeros(0), zeros(0), zeros(0)
+    for i in E
+        k, A, B, t11 = solveTMM(U, i, An, [1.0, 0.0], 1e-2)
+        t11arr = append!(t11arr, real(t11))
+        k_arr = append!(k_arr, K)
+        A_arr = append!(A_arr, A)
+        B_arr = append!(B_arr, B)
+    end
+    return t11arr, k_arr, A_arr, B_arr
+end
