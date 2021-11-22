@@ -18,17 +18,13 @@ function boundStates(E, t11arr)
     return energyBoundStates
 end
 
-function getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError, step)
+function getNthBoundStateEnergy(n, E, t11arr, U, An, energyBoundStates, acceptableError, step)
     #= Gets the nth bound state Sign crossover for t11. Repeats simulation between the two energies till energy eigenfunction is found =#
         
-    energyBoundStates = boundStates(E, t11arr)
-    
-    # Get the energy of the nth bound state
     lowerEnergy = energyBoundStates[n*2-1]
     higherEnergy = energyBoundStates[n*2]    
 
     iterations = 0
-    # Find Energy Eigenfunction between the two energies
     while iterations < 10
         E = createRange(lowerEnergy, higherEnergy, 0.01/(10^iterations))
         t11, k_arr, A_arr, B_arr = energyLoop(E, U, An, step)
@@ -47,13 +43,13 @@ end
 function getAllBoundStates(U, E, An, acceptableError, step)
 
     energyEigenfunctions = []
-    t11arr, tp, rp = energyLoop(E, U, An, step)
+    t11arr, k_arr, A_arr, B_arr = energyLoop(E, U, An, step)
     n = 1
-    while n*2 <= length(boundStates(E, t11arr))
-        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, U, An, acceptableError, step))
+    energyBoundStates = boundStates(E, t11arr)
+    while n*2 <= length(energyBoundStates)
+        append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, U, An, energyBoundStates,acceptableError, step))
         n = n + 1
     end
-    #display(plotTprp(tp, rp, E))
     return energyEigenfunctions
 end
 

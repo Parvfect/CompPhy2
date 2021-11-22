@@ -25,3 +25,4 @@ end
 function indexing(n, len, element)
     # Using single dim array as multidimensional
     return n* len + element
+end
