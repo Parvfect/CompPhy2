@@ -27,8 +27,10 @@ function test()
 
     if length(energyEigenfunctions) > 0
         print("Finite well test passed with $(length(energyEigenfunctions)) bound states")
-            grid, psi = psiSim(U, energyEigenfunctions[2], An, Bn, 0.01)
-        plotWavefunction(grid, psi, energyEigenfunctions[2])
+            A, B, K, t = solveTMM(U, energyEigenfunctions[1], An, Bn, 1e-2)
+            grid, psi = totalWavefunction(An, A, B, K)
+            grid = 0:0.01:12.02
+            plotWavefunction(grid, psi, 1.13)
     else
         print("Finite well test failed")
     end

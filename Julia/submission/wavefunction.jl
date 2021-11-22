@@ -14,10 +14,13 @@ function getWaveVector(E, U)
 end
 
 function formTransferMatrix(k1, k2, a)
-    k1k2 = k1 + k2
-    k1_k2 = k1 - k2
-    t =  1/2k1 * [k1k2*exp(-1im*a*k1_k2) k1_k2*exp(-1im*a*k1k2) ; k1_k2*exp(1im*a*k1k2) k1k2*exp(1im*a*k1_k2)]
-    return t
+    if k1 == 0
+        return [(1 - k2*x)*exp(1im *k2 *x) (1 + k2*x)*exp(-1im *k2 *x) ; (1im*k2)*exp(1im *k2 *x) (-1im*k2)*exp(-1im *k2 *x)]
+    elseif k2 == 0
+        return [(exp(-1im * k1 * x)/2) ((k1*x - 1im)*exp(-1im * k1 * x)/(2k*1)) ; (exp(1im * k1 * x)/2) ((k1*x + 1im)*exp(1im * k1 * x)/(2k*1))]    
+    else
+        return  1/2k1 * [(k1 + k2)*exp(-1im*a*(k1 - k2)) (k1 - k2)*exp(-1im*a*(k1 + k2)) ; (k1 - k2)*exp(1im*a*(k1 + k2)) (k1 + k2)*exp(1im*a*(k1 - k2))]
+    end
 end 
     
 function transmissionProbability(t, k0, kn)
@@ -35,31 +38,18 @@ function transferMatrixMethod(k1, k2, Bc2, a)
     return T, T * Bc2 
 end
 
-function generalisedWavefunction(grid, An, A, B, K)
-    psi = complex(zeros(length(grid)))    
-    ptr = 0
-
+function totalWavefunction(An, A, B, K)
+    psi, ptr = [], 0
     for i in 1:length(An)
-        temp_grid = 0:0.02:An[i]
-        a,b,k = A[i], B[i], K[i]
-        if i > 1
-            ptr += (i-1) * (An[i-1])
-        end
-        for j in 1:length(temp_grid)
-            psi[ptr + j] = Ψ(a, b, k, temp_grid[j])
-        end
+        an, a, b, k = An[i], A[i], B[i], K[i]
+        grid_temp = ptr:0.01:(ptr + an)
+        psi = append!(psi, generalisedWavefunction(a, b, k, grid_temp))
     end
-    """
-    for i in 1:length(grid) 
-        if grid[i] > len
-            j += 1 
-            K, a, b = k[j], A[j], B[j]
-            len += An[j]
-        end
-        psi[i] = Ψ(a, b, K, grid[i])
-    end
-    """ 
-    return psi
+    return 0:0.01:sum(An), psi 
+end
+
+function generalisedWavefunction(A, B, K, grid)
+    return [Ψ(A, B, K, i) for i in grid]    
 end
 
 
@@ -107,7 +97,7 @@ end
 
 function energyLoop(E, U, An, step)
     
-    t11arr, k_arr, A_arr, B_arr = zeros(0), zeros(0), zeros(0), zeros(0)
+    t11arr, k_arr, A_arr, B_arr = zeros(0), complex(zeros(0)), complex(zeros(0)), complex(zeros(0))
     for i in E
         K, A, B, t11 = solveTMM(U, i, An, [1.0, 0.0], 1e-2)
         t11arr = append!(t11arr, real(t11))
