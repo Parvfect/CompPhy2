@@ -7,6 +7,7 @@ using Base
 function boundStates(E, t11arr)
     #= Takes an input of the array of the t11 values and plots the t11 and returns the bound state energies =#
 
+    #display(plot(E,t11arr))
     oldValue = t11arr[1]
     energyBoundStates = zeros(0)    
     for i in 1:length(t11arr)
@@ -45,6 +46,7 @@ function getAllBoundStates(U, E, An, acceptableError, step)
     energyEigenfunctions = []
     t11arr, k_arr, A_arr, B_arr = energyLoop(E, U, An, step)
     n = 1
+    println(A_arr)
     energyBoundStates = boundStates(E, t11arr)
     while n*2 <= length(energyBoundStates)
         append!(energyEigenfunctions, getNthBoundStateEnergy(n, E, t11arr, U, An, energyBoundStates,acceptableError, step))

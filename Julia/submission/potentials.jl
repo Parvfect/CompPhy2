@@ -4,19 +4,12 @@ m = 9.1e-31
 
 using Statistics
 
-function createGaussianPotential(mu, sigma)
-    
-    return x -> 1/(sigma * sqrt(2* pi)) * exp(-((x-mu)/sigma)^2/2)
+function createGaussianPotential(V, a)
+    #= V = 3 , a = 5 =#
+    return x -> V * exp(- (x-a)^2/6.25)
 end
 
-function GaussianPotential(x)
-   if x ==0 || x == 5 
-      return 0
-   else
-      return 3 * exp( - ((x - 2.5)^2)/5)
-   end
-end
-
+        
 function createLinePotential(m, c) 
     return x -> (m*x + c)
 end
@@ -25,10 +18,10 @@ function createHarmonicPotential()
     return x -> (x^2*w^2*m)/2
 end
 
-function piecewisePotential(lowerLimit, upperLimit, n_reigons, potentialFunction)
-    lengthReigon = (abs(lowerLimit) + upperLimit) / n_reigons
+function piecewisePotential(upperLimit, n_reigons, potentialFunction)
+    lengthReigon = upperLimit / n_reigons
     U = zeros(n_reigons)
-    ptr = lowerLimit + lengthReigon/2
+    ptr = lengthReigon/2
 
     for i in 1:n_reigons
         U[i] =  potentialFunction(ptr)

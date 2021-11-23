@@ -44,8 +44,10 @@ function totalWavefunction(An, A, B, K)
         an, a, b, k = An[i], A[i], B[i], K[i]
         grid_temp = ptr:0.01:(ptr + an)
         psi = append!(psi, generalisedWavefunction(a, b, k, grid_temp))
+        ptr += an
     end
-    return 0:0.01:sum(An), psi 
+    display(plot(real(psi)))
+    return psi 
 end
 
 function generalisedWavefunction(A, B, K, grid)
