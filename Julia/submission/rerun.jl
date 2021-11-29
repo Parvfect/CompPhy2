@@ -49,7 +49,7 @@ p1=plot!(x,imag(psi2))
 
 =# 
 
-#= Generalising Mark's solution for a x>0 solution
+#= Generalising Mark's solution for a x>0 solution 
 using Plots
 using LinearAlgebra
 
@@ -89,7 +89,7 @@ p1=plot!(x,imag(psi2))
 
 =#
 
-#= Making Potential Step work with functions
+#= Making Potential Step work with functions 
 function getWaveVector(E, U)
     return sqrt(2*me*(Complex(E-U)))/hbar
 end
@@ -430,17 +430,18 @@ display(plot(t11))
 
 # Bound States of Finite Well 
 
+
 using Plots
 using LinearAlgebra
 
 
 e=1.6e-19
 
-U = [3.0, 0, 3.0]*e
+U = [2, 0, 2]*e
 E=1.025*e
-reigon_lengths = [2e-9, 8e-9, 2e-9]
-boundaries = [2e-9, 10e-9]
-me=9.11e-31
+reigon_lengths = [2e-9, 5e-9, 2e-9]
+boundaries = [2e-9, 7e-9]
+me=9.11e-31 
 hbar=1.05e-34
 A3=1.0
 
@@ -468,14 +469,14 @@ function solve(E)
 
     TM=getTransferMatrix(k2, k3, boundaries[2])
     AB = TM*[A3;0]
-    A2=TM[1]
-    B2=TM[2]
+    A2=AB[1]
+    B2=AB[2]
 
     TM=getTransferMatrix(k1, k2, boundaries[1])
     AB = TM*[A2;B2]
-    A1=TM[1]
-    B1=TM[2]
-    plot_simulation(A1, B1, A2, B2, A3, 0, k1, k2, k3)
+    A1=AB[1]
+    B1=AB[2]
+    #plot_simulation(A1, B1, A2, B2, A3, 0, k1, k2, k3)
 
     return TM[1,1]
 end
@@ -485,19 +486,19 @@ function plot_simulation(A1, B1, A2, B2, A3, B3, k1, k2, k3)
     x=0:1e-11:boundaries[1]
     psi1=getWavefunction(A1, B1, k1, x)
 
-    #p1=plot(real(psi1))
+    p1=plot(x,real(psi1))
     #p1=plot!(x,imag(psi1))
 
     x=boundaries[1]:1e-11:boundaries[2]
 
     psi2=getWavefunction(A2, B2, k2, x)
 
-    #p1=plot!(real(psi2))
+    p1=plot!(x,real(psi2))
     #p1=plot!(x,imag(psi2))
 
     x=boundaries[2]:1e-11:boundaries[2]+reigon_lengths[length(reigon_lengths)]
     psi3 = getWavefunction(A3, 0, k3, x)
-    p1=plot!(real(psi3))
+    p1=plot!(x,real(psi3))
     #p1=plot!(x,imag(psi3))
     display(p1)
 end
@@ -526,8 +527,6 @@ function getNthBoundStateEnergy(n, energyBoundStates, acceptableError)
         
     lowerEnergy = energyBoundStates[n*2-1]
     higherEnergy = energyBoundStates[n*2]    
-    print(energyBoundStates)
-
     iterations = 0
     while iterations < 10
         E = createEnergyRange(lowerEnergy, iterations, higherEnergy)
@@ -558,7 +557,20 @@ function getAllBoundStates(E, acceptableError)
     return energyEigenfunctions
 end
 
-E = 0:1e-21:2*e
-#print(getAllBoundStates(E, 0.1))
 
-solve(4.19053387e-21)
+function t11plot(E)
+    t11arr = getT11(E)
+    display(plot(E,t11arr))
+end
+
+E = 0:1e-21:2.99*e
+#t11 = [abs(i) for i in (getT11(E))]
+#display(plot(t11)) 
+
+print(getAllBoundStates(E, 1e-3))
+
+
+#Looks like we are getting the right solution for 
+#the potential barrier - who knows what the fuck 
+
+
