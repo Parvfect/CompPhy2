@@ -582,15 +582,7 @@ using Plots
 using LinearAlgebra
 
 
-e=1.6e-19
 
-U = [2, 0, 2]*e
-E=1.025*e
-reigon_lengths = [2e-9, 5e-9, 2e-9]
-boundaries = [2e-9, 7e-9]
-me=9.11e-31 
-hbar=1.05e-34
-A3=1.0
 
 function getWaveVector(E, U)
     return sqrt(2*me*(Complex(E-U)))/hbar
@@ -606,6 +598,51 @@ end
 
 function getT11(E)
     return [real(solve(i)) for i in E]
+end
+
+function getTotalWaveVector(E, U)
+    return [getWaveVector(E, i) for i in U]
+end
+
+function nReigon(E, U, a, b, boundaries)
+
+    k = getTotalWaveVector(E, U)
+    A = complex(zeros(length(k)))
+    B = complex(zeros(length(k)))
+    A[length(k)] = a
+    B[length(k)] = b
+    t11 = 0 
+
+    for i in length(A):-1:2
+    
+        TM = getTransferMatrix(k[i-1], k[i], boundaries[i-1])
+        if i == 2
+            t11 = TM[1,1]
+        end
+        AB = TM*[A[i];B[i]]
+        A[i-1] = AB[1] 
+        B[i-1] = AB[2]
+    end
+    return A, B
+end
+
+function nReigonPlot(A, B, k, reigon_lengths)
+    
+    ptr = 0
+    p1 = plot()
+    for i in 1:length(A)
+        x = ptr:1e-11:ptr + reigon_lengths[i]
+        psi = [getWavefunction(A[i], B[i], k[i], j) for j in x]
+        p1 = plot!(x, real(psi))
+        ptr = ptr + reigon_lengths[i]
+    end
+    display(p1)
+end
+
+
+function t11plot(E)
+    t11arr = getT11(E)
+    display(plot(E,t11arr))
 end
 
 function solve(E)
@@ -656,6 +693,20 @@ function t11plot(E)
     display(plot(E,t11arr))
 end
 
-E = 0:1e-21:2.99*e
 
-solve(1.318366*e)
+e=1.6e-19
+
+E = 0:1e-21:2.99*e
+U = [2, 0, 2]*e
+reigon_lengths = [2e-9, 5e-9, 2e-9]
+boundaries = [2e-9, 7e-9]
+me=9.11e-31 
+hbar=1.05e-34
+A3=1.0
+E = 1.318366*e
+#A, B = nReigon(E, U, 1.0, 0, boundaries)
+
+#println(solve(E))
+A, B = nReigon(E, U, 1.0, 0, boundaries)
+nReigonPlot(A, B, getTotalWaveVector(E, U), reigon_lengths)
+# -559.4067088205346 - 4133.246567573868im - t11 for that bound state
