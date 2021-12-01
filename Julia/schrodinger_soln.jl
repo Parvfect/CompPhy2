@@ -12,14 +12,14 @@ U2=0*e
 U3=3*e 
 E=0.75*e
 
-me=9.11e-31
+me=9.11e-31 * 0.067
 a=3e-10
 hbar=1.05e-34
 
 k1=sqrt(2*me*(Complex(E-U1)))/hbar
 k2=sqrt(2*me*(Complex(E-U2)))/hbar
 k3=sqrt(2*me*(Complex(E-U3)))/hbar
-A3=1.0
+A2=1.0
 
 TM=(1/(2*k1))*[(k1+k2)*exp(-1im*a*(k1-k2)) (k1-k2)*exp(-1im*a*(k1+k2)); (k1-k2)*exp(1im*a*(k1+k2))  (k1+k2)*exp(1im*a*(k1-k2))]*[A2;0]
 A1=TM[1]

@@ -581,9 +581,6 @@ solve(1.1*e)
 using Plots
 using LinearAlgebra
 
-
-
-
 function getWaveVector(E, U)
     return sqrt(2*me*(Complex(E-U)))/hbar
 end
@@ -629,14 +626,18 @@ end
 function nReigonPlot(A, B, k, reigon_lengths)
     
     ptr = 0
-    p1 = plot()
+    p1 = plot(xlabel = "x", ylabel = "psi(x)")
     for i in 1:length(A)
         x = ptr:1e-11:ptr + reigon_lengths[i]
         psi = [getWavefunction(A[i], B[i], k[i], j) for j in x]
         p1 = plot!(x, real(psi))
+        println(x)
+        println(real(psi))
         ptr = ptr + reigon_lengths[i]
     end
     display(p1)
+    
+    #savefig(p1,"C:/Users/Parv/Documents/compphy/Julia/Data/BarrierWavefunction")
 end
 
 
@@ -695,15 +696,14 @@ end
 
 
 e=1.6e-19
-
-E = 0:1e-21:2.99*e
-U = [2, 0, 2]*e
-reigon_lengths = [2e-9, 5e-9, 2e-9]
-boundaries = [2e-9, 7e-9]
+save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
+U = [3, 0, 3]*e
+reigon_lengths = [2e-9, 8e-9, 2e-9]
+boundaries = [2e-9, 10e-9]
 me=9.11e-31 
 hbar=1.05e-34
 A3=1.0
-E = 1.318366*e
+E = 2.4021*e
 #A, B = nReigon(E, U, 1.0, 0, boundaries)
 
 #println(solve(E))

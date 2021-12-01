@@ -35,6 +35,7 @@ function Schrodinger1D(U, E, A2, B2)
     A1 = Bc1[1]
     B1 = Bc1[2]
 
+    print(Bc2, Bc1)
     plotWaveFunction1D(Bc1, Bc2, k1, k2)
 
 end
@@ -67,13 +68,19 @@ function plotWaveFunction1D(Bc1, Bc2, k1, k2)
             psi[i] = Ψ(Bc2[1], Bc2[2], k2, grid[i])
         end
     end
-
-    plot(grid, real(psi),  label = "Wavefunction for Time Independent Schordinger Equation in One Dimension", xlabel = "x", ylabel = "psi(x)")
-    plot!(grid, imag(psi))
+    return grid, psi
 end
     
     
 
-U = [0, 2] * e
-E = [0.75, 1.5, 2.5] * e
-Schrodinger1D(U, E[1], 1.0, 0)
+U1 = [2, 0] * e
+E = 0.54 * e
+grid1, psi1 = Schrodinger1D(U1, 0.54*e, -1.4702249706885045e-6 - 1.3872562147548123e-7im, -1.4702249706885045e-6 + 1.3872562147548123e-7im)
+plot(grid1, real(psi1))
+
+U2 = [0, 2] * e
+E = 0.54 * e
+grid2, psi2 = Schrodinger1D(U2, 0.54*e, -1.4702249706885045e-6 - 1.3872562147548123e-7im, -1.4702249706885045e-6 + 1.3872562147548123e-7im)
+plot(grid2, real(psi2))
+
+
