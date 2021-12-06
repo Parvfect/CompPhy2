@@ -1,6 +1,11 @@
 using Plots
 using LinearAlgebra
 
+e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
+save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
+U, reigon_lengths, boundaries = [3, 0, 3]*e, [2e-9, 8e-9, 2e-9], [2e-9, 10e-9]
+
+
 function getWaveVector(E, U)
     return sqrt(2*me*(Complex(E-U)))/hbar
 end
@@ -21,32 +26,27 @@ function getTotalWaveVector(E, U)
     return [getWaveVector(E, i) for i in U]
 end
 
+function nReigont11(E, U, boundaries)
+    return getTransferMatrix(getWaveVector(E, U[1]), getWaveVector(E, U[2]), boundaries[1])[1,1]       
+end
+
 function nReigon(E, U, a, b, boundaries)
 
-    k = getTotalWaveVector(E, U)
-    A = complex(zeros(length(k)))
-    B = complex(zeros(length(k)))
-    A[length(k)] = a
-    B[length(k)] = b
-    t11 = 0 
+    A, B, k = complex(zeros(length(U))), complex(zeros(length(U))), getTotalWaveVector(E, U)
+    A[length(U)], B[length(U)] = a, b
 
     for i in length(A):-1:2
-    
         TM = getTransferMatrix(k[i-1], k[i], boundaries[i-1])
-        if i == 2
-            t11 = TM[1,1]
-        end
         AB = TM*[A[i];B[i]]
-        A[i-1] = AB[1] 
-        B[i-1] = AB[2]
+        A[i-1], B[i-1] = AB[1], AB[2]
     end
     return A, B
 end
 
-function nReigonPlot(A, B, k, reigon_lengths)
+function nReigonPlot(A, B, k, reigon_lengths, saveFig)
     
     ptr = 0
-    p1 = plot(xlabel = "x", ylabel = "psi(x)")
+    p1 = plot(xlabel = "x", ylabel = "psi(x)", xlim=(0,1.2e-8), ylim=(-Inf,+Inf), grid = true)
     for i in 1:length(A)
         x = ptr:1e-11:ptr + reigon_lengths[i]
         psi = [getWavefunction(A[i], B[i], k[i], j) for j in x]
@@ -54,77 +54,36 @@ function nReigonPlot(A, B, k, reigon_lengths)
         ptr = ptr + reigon_lengths[i]
     end
     display(p1)
-    
-    #savefig(p1,"C:/Users/Parv/Documents/compphy/Julia/Data/FiniteWellBS2")
+
+    if saveFig
+        s = readline("Enter Figure name")
+        savefig(p1, save_path*"$s")
+    end
 end
 
 
-function t11plot(E)
-    t11arr = getT11(E)
-    display(plot(E,t11arr))
+function energyLoop(E, U, a, b, boundaries)
+    return [nReigont11(i, U, boundaries) for i in E]
 end
 
-function solve(E)
-    k1=getWaveVector(E, U[1])
-    k2=getWaveVector(E, U[2])
-    k3=getWaveVector(E, U[3])
-
-
-    TM=getTransferMatrix(k2, k3, boundaries[2])
-    AB = TM*[A3;0]
-    A2=AB[1]
-    B2=AB[2]
-
-    TM=getTransferMatrix(k1, k2, boundaries[1])
-    AB = TM*[A2;B2]
-    A1=AB[1]
-    B1=AB[2]
-    plot_simulation(A1, B1, A2, B2, A3, 0, k1, k2, k3)
-
-    return TM[1,1]
-end
-
-function plot_simulation(A1, B1, A2, B2, A3, B3, k1, k2, k3)
-
-    x=0:1e-11:boundaries[1]
-    psi1=getWavefunction(A1, B1, k1, x)
-
-    p1=plot(x,real(psi1))
-    #p1=plot!(x,imag(psi1))
-
-    x=boundaries[1]:1e-11:boundaries[2]
-
-    psi2=getWavefunction(A2, B2, k2, x)
-
-    p1=plot!(x,real(psi2))
-    #p1=plot!(x,imag(psi2))
-
-    x=boundaries[2]:1e-11:boundaries[2]+reigon_lengths[length(reigon_lengths)]
-    psi3 = getWavefunction(A3, 0, k3, x)
-    p1=plot!(x,real(psi3))
-    #p1=plot!(x,imag(psi3))
+function t11Sim()
+    E = 0:1e-21:3*e
+    t11 = energyLoop(E, U, 1.0, 0, boundaries)
+    p1 = plot(real(t11), xlabel = "E", ylabel = "T11")
     display(p1)
 end
 
-
-function t11plot(E)
-    t11arr = getT11(E)
-    display(plot(E,t11arr))
+function nReigonSim(E)
+    A, B = nReigon(E, U, 1.0, 0, boundaries)
+    nReigonPlot(A, B, getTotalWaveVector(E, U), reigon_lengths, false)
 end
 
 
-e=1.6e-19
-save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
-U = [3, 0, 3]*e
-reigon_lengths = [2e-9, 8e-9, 2e-9]
-boundaries = [2e-9, 10e-9]
-me=9.11e-31 
-hbar=1.05e-34
-A3=1.0
-E = 2.4021*e
-#A, B = nReigon(E, U, 1.0, 0, boundaries)
+# Bound States - Highest to Lowest
+#E = 3.843359e-19
+#E = 1.2678747928e-19
+#E = 7.1410000239e-20
+#E = 1.4122357142399997e-20
+#E = 3.531310235e-21
+#E = 0.8828720751e-21
 
-#println(solve(E))
-A, B = nReigon(E, U, 1.0, 0, boundaries)
-nReigonPlot(A, B, getTotalWaveVector(E, U), reigon_lengths)
-# -559.4067088205346 - 4133.246567573868im - t11 for that bound state

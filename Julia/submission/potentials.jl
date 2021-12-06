@@ -30,3 +30,6 @@ function piecewisePotential(upperLimit, n_reigons, potentialFunction)
 
     return U, [lengthReigon for i in 1:n_reigons]
 end
+
+p = createGaussianPotential(3,5)
+U, an = piecewisePotential(10, 5, p)
