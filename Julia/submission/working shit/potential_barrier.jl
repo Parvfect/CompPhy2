@@ -6,36 +6,6 @@ e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
 save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
 U, reigon_lengths, boundaries = [0, 2, 0]*e, [2e-9, 5e-9, 2e-9], [2e-9, 7e-9]
 
-function getTransmissionProbability(t11)
-    return (1/(t11))^2
-end
-
-function getReflectionProbability(t11, kn, k1)
-    return (1/(t11))^2
-end
-function getWaveVector(E, U)
-    return sqrt(2*me*(Complex(E-U)))/hbar
-end
-
-function getTransferMatrix(k1, k2, a)
-    return (1/(2*k1))*[(k1+k2)*exp(-1im*a*(k1-k2)) (k1-k2)*exp(-1im*a*(k1+k2)); (k1-k2)*exp(1im*a*(k1+k2))  (k1+k2)*exp(1im*a*(k1-k2))]
-end
-
-function getWavefunction(A, B, k, x)
-    return A*exp.(1im.*x.*k).+B*exp.(-1im.*x.*k)
-end
-
-function getT11(E)
-    return [real(solve(i)) for i in E]
-end
-
-function getTotalWaveVector(E, U)
-    return [getWaveVector(E, i) for i in U]
-end
-
-function nReigont11(E, U, boundaries)
-    return getTransferMatrix(getWaveVector(E, U[1]), getWaveVector(E, U[2]), boundaries[1])[1,1]       
-end
 
 function nReigontp(E, U, boundaries)
     k = getTotalWaveVector(E, U)
@@ -84,7 +54,7 @@ function energyLooptp(E, U, boundaries)
 end
 
 function t11Sim()
-    E = 0:1e-21:2e-19
+    E = 0:1e-21:2e-19   
     t11 = energyLoop(E, U, boundaries)
     E = 0:0.01:2
     p1 = plot(real(t11), xlabel = "E", ylabel = "T11")
@@ -96,7 +66,7 @@ function tpSim()
     tp = energyLooptp(E, U, boundaries)
     #tp = [makePositive(i) for i in real(tp)]
     E = 0:0.01:4
-    p1 = plot(E, imag(tp), xlabel = "E", ylabel = "Tp")
+    p1 = plot(E, tp, xlabel = "E", ylabel = "Tp")
     display(p1)
 end
 
@@ -115,5 +85,5 @@ end
 #E = 0.8828720751e-21
 #nReigonSim(E)
 
-#t11Sim()
-tpSim()
+t11Sim()
+#tpSim()
