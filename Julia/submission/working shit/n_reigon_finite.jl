@@ -31,5 +31,5 @@ end
 E = 1e-22:1e-22:3e-19
 #t11 = energyLoop(E, U, boundaries)
 #display(plot(real(t11)))
-getAllBoundStates(E, U, boundaries)
-#nReigonSim(1.6e-21)
+print(getAllBoundStates(E, U, boundaries))
+#nReigonSim(3.333435383459582e-20)

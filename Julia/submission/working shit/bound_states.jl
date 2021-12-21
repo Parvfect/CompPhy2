@@ -1,4 +1,29 @@
 
+function checkBoundStates(energyBoundStates, U, boundaries)
+    """ Checks if boundstate array has pairs that reflect sign of t11 """
+    
+    i = 1
+    ptr = true
+    while i<length(energyBoundStates)
+        
+        lowerEnergy, higherEnergy = energyBoundStates[i], energyBoundStates[i+1]
+        
+        lowerEnergyt11, higherEnergyt11 = real(nReigonTm(lowerEnergy, U, boundaries)[1,1]), real(nReigonTm(higherEnergy, U, boundaries)[1,1])
+        
+        if lowerEnergyt11 <= 0.0 && higherEnergyt11 <= 0.0
+            return false
+        
+        elseif lowerEnergyt11 >= 0.0 && higherEnergyt11 >= 0.0
+            return false
+        
+        else
+            i+=2
+        end
+    end
+
+    return true
+end
+
 function boundStates(E, t11arr)
     #= Takes an input of the array of the t11 values and plots the t11 and returns the bound state energies =#
 
@@ -8,11 +33,10 @@ function boundStates(E, t11arr)
     energyBoundStates = zeros(0)    
     for i in 1:length(t11arr)
         if t11arr[i] >= 0 && oldValue < 0 || oldValue >= 0 && t11arr[i] < 0
-            append!(energyBoundStates, E[i], E[i+1])
+            append!(energyBoundStates, E[i], E[i-1])
         end
         oldValue = t11arr[i]
     end
-    print(energyBoundStates)
     return energyBoundStates
 end
 
@@ -28,7 +52,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
         t11 = nReigonTm(midpoint, U, boundaries)[1,1]
         println(t11)
         
-        if abs(real(t11)) >= 1e-11
+        if abs(real(t11)) >= 1e-22
         
             lowerEnergyt11 = real(nReigonTm(lowerEnergy, U, boundaries)[1,1])
             higherEnergyt11 = real(nReigonTm(higherEnergy, U, boundaries)[1,1])
@@ -62,14 +86,19 @@ function getAllBoundStates(E, U, boundaries)
     t11arr = real(energyLoop(E, U, boundaries))
     n = 1
     energyBoundStates = boundStates(E, t11arr)
-    while n*2 <= length(energyBoundStates)
-        lowerEnergy, higherEnergy = energyBoundStates[n], energyBoundStates[n+1]
-        append!(energyEigenfunctions, getNthBoundStateEnergy(lowerEnergy, higherEnergy, U, boundaries))
-        n = n + 1
-    end
-    return energyEigenfunctions
+    if checkBoundStates(energyBoundStates,U, boundaries)
     
-    #return 
+        while n*2 <= length(energyBoundStates)
+            lowerEnergy, higherEnergy = energyBoundStates[n], energyBoundStates[n+1]
+            append!(energyEigenfunctions, getNthBoundStateEnergy(lowerEnergy, higherEnergy, U, boundaries))
+            n = n + 1
+        end
+    return energyEigenfunctions
+
+    else
+        println("Bound states do not have same sign")
+        return false
+    end
 end
 
 
