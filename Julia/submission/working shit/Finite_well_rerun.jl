@@ -5,7 +5,7 @@ using LinearAlgebra
 
 e=1.6e-19
 
-U = [2, 0, 2]*e
+U = [0, -2, 0]*e
 E=1.025*e
 reigon_lengths = [2e-9, 5e-9, 2e-9]
 boundaries = [2e-9, 7e-9]
@@ -132,11 +132,11 @@ function t11plot(E)
 end
 
 E = 0:1e-21:2.99*e
-#t11 = [abs(i) for i in (getT11(E))]
-#display(plot(t11)) 
+t11 = getT11(E)
+display(plot(t11)) 
 
 #print(getAllBoundStates(E, 1e-3))
-solve(1.318366*e)
+#solve(1.318366*e)
 
 #Looks like we are getting the right solution for 
 #the potential barrier - who knows what the fuck 

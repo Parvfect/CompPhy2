@@ -1,6 +1,6 @@
 using Plots
 using LinearAlgebra
-
+include("bound_states.jl")
 
 save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
 
@@ -93,6 +93,7 @@ function nReigonPlot(A, B, k, reigon_lengths, saveFig)
     end
 end
 
+
 """ Energy Loops """
 function energyLoop(E, U, boundaries)
     TM = [nReigonTm(i, U, boundaries) for i in E]
@@ -106,40 +107,11 @@ function energyLoop(E, U, boundaries)
         j = j + 1
     end
     
-    p1 = plot(real(tp))
+    #p1 = plot(real(tp))
     #p1 = plot!(real(rp))
     #display(plot(real(t11)))
-    display(p1)
+    #display(p1)
 
+    return t11
 end
 
-#function energyLoop(E, U, boundaries)
-    
-    #t11 = [nReigonTm(i, U, boundaries)[1,1] for i in E]
-    
-    #=t11, tp, rp = complex(zeros(length(E))), zeros(length(E)), zeros(length(E))
-    j = 1
-    for i in E
-        TM = nReigonTm(i, U, boundaries)
-        t11[j] = TM[1,1]
-        #tp[j] = getTransmissionProbability(t11[i])
-        #rp[j] = getReflectionProbability(TM[2,1], t11[i])
-        j += 1
-    end
-
-    print(t11)
-    =#
-    #p1 = plot(t11, xlabel = "E", ylabel = "Transmission Probability", xlim=(-Inf,+Inf), ylim=(0,1), grid = true)
-    #p1 = plot!(tp, xlabel = "E", ylabel = "Transmission Probability", xlim=(-Inf,+Inf), ylim=(0,1), grid = true)
-    #p1 = plot!(rp, xlabel = "E", ylabel = "Reflection Probability", xlim=(-Inf,+Inf), ylim=(0,1), grid = true)
-    #display(p1)
-#end
-
-e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
-U = [0, 2, 0]*e
-#E=1.4122357142399997e-20
-reigon_lengths = [2e-9, 5e-9, 2e-9]
-boundaries = [2e-9, 7e-9]
-E = 1e-22:1e-22:6e-19 
-t11 = energyLoop(E, U, boundaries)
-#display(plot(real(t11)))

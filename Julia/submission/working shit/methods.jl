@@ -1,5 +1,4 @@
 
-
 function nReigontm(E, U, boundaries)
    
     k = getTotalWaveVector(E, U)
