@@ -5,23 +5,26 @@ function checkBoundStates(energyBoundStates, U, boundaries)
     i = 1
     ptr = true
     while i<length(energyBoundStates)
-        
         lowerEnergy, higherEnergy = energyBoundStates[i], energyBoundStates[i+1]
-        
-        lowerEnergyt11, higherEnergyt11 = real(nReigonTm(lowerEnergy, U, boundaries)[1,1]), real(nReigonTm(higherEnergy, U, boundaries)[1,1])
-        
-        if lowerEnergyt11 <= 0.0 && higherEnergyt11 <= 0.0
+        if !checkFlip(lowerEnergy, higherEnergy, U, boundaries)
             return false
-        
-        elseif lowerEnergyt11 >= 0.0 && higherEnergyt11 >= 0.0
-            return false
-        
-        else
-            i+=2
         end
+        i+=2
     end
-
     return true
+end
+
+
+function checkFlip(lowerEnergy, higherEnergy, U, boundaries)
+    """ Checks if boundstate array has pairs that reflect sign of t11 """
+    
+    lowerEnergyt11, higherEnergyt11 = real(nReigonTm(lowerEnergy, U, boundaries)[1,1]), real(nReigonTm(higherEnergy, U, boundaries)[1,1])
+    
+    if lowerEnergyt11 <= 0.0 && higherEnergyt11 <= 0.0 || lowerEnergyt11 >= 0.0 && higherEnergyt11 >= 0.0
+        return false
+    else
+        return true
+    end
 end
 
 function boundStates(E, t11arr)
@@ -45,27 +48,31 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
         
     while true
         
+        if !checkFlip(lowerEnergy, higherEnergy, U, boundaries)
+            print("Sign flip lost")
+        end
         # Getting midpoint from higher and lower energy
         midpoint = (lowerEnergy + higherEnergy)/2
         #println(lowerEnergy, "", higherEnergy, "", midpoint)
         
-        t11 = nReigonTm(midpoint, U, boundaries)[1,1]
+        t11 = real(nReigonTm(midpoint, U, boundaries)[1,1])
         println(t11)
         
-        if abs(real(t11)) >= 1e-22
+        # Minimum error seems to be 1e-13 and then the thing starts repeating
+        if abs(real(t11)) >= 1e-13
         
             lowerEnergyt11 = real(nReigonTm(lowerEnergy, U, boundaries)[1,1])
             higherEnergyt11 = real(nReigonTm(higherEnergy, U, boundaries)[1,1])
             
             # Finding which energy level has a larger t11 value and adjusting energy levels accordingly
-            if real(t11) < 0  
-                if lowerEnergyt11 > higherEnergyt11
+            if higherEnergyt11 > lowerEnergyt11   
+                if t11 > 0
                     higherEnergy = midpoint
                 else
                     lowerEnergy = midpoint
                 end
             else
-                if lowerEnergyt11 > higherEnergyt11
+                if t11 > 0
                     lowerEnergy = midpoint
                 else
                     higherEnergy = midpoint

@@ -3,7 +3,7 @@ include("bound_states.jl")
 
 e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
 save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
-U, reigon_lengths, boundaries = [0, -2, 0]*e, [2e-9, 8e-9, 2e-9], [2e-9, 10e-9]
+U, reigon_lengths, boundaries = [0, -3, 0]*e, [2e-9, 8e-9, 2e-9], [2e-9, 10e-9]
 
 
 
@@ -13,10 +13,16 @@ function nReigonSim(E)
 end
 
 function t11Sim()
-    E = 1e-21:1e-21:5e-19
+    E = 1e-22:1e-22:3e-19
     energyLoop(E, U, boundaries)
 end
 
+function plotBoundStates()
+    E = 1e-22:1e-22:3e-19
+    boundStates = getAllBoundStates(E, U, boundaries)
+    print(boundStates)
+    nReigonSim(boundStates[6])
+end
 
 # Bound States - Highest to Lowest
 #E = 3.843359e-19
@@ -28,8 +34,7 @@ end
 
 #nReigonSim(3.5e-21)
 #t11Sim()
-E = 1e-22:1e-22:3e-19
+E = 1e-28:1e-22:5e-19
 #t11 = energyLoop(E, U, boundaries)
 #display(plot(real(t11)))
-print(getAllBoundStates(E, U, boundaries))
-#nReigonSim(3.333435383459582e-20)
+plotBoundStates()
