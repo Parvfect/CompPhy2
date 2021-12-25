@@ -1,6 +1,5 @@
 using Plots
 using LinearAlgebra
-include("bound_states.jl")
 
 save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
 
@@ -93,6 +92,19 @@ function nReigonPlot(A, B, k, reigon_lengths, saveFig)
     end
 end
 
+
+function piecewisePotential(upperLimit, n_reigons, potentialFunction)
+    lengthReigon = upperLimit / n_reigons
+    U = zeros(n_reigons)
+    ptr = lengthReigon/2
+
+    for i in 1:n_reigons
+        U[i] =  potentialFunction(ptr)
+        ptr += lengthReigon
+    end
+
+    return U, [lengthReigon for i in 1:n_reigons]
+end
 
 """ Energy Loops """
 function energyLoop(E, U, boundaries)

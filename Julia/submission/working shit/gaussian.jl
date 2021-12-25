@@ -1,6 +1,6 @@
-using Plots
-using LinearAlgebra
 include("generic_soln.jl")
+
+# Transmission Probability Plot looks sound - 25/12/21
 
 e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
 save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
@@ -10,20 +10,6 @@ save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
 function createGaussianPotential(V, a)
     #= V = 3 , a = 5 =#
     return x -> V * exp(- (x-a)^2/6.25)
-end
-
-
-function piecewisePotential(upperLimit, n_reigons, potentialFunction)
-    lengthReigon = upperLimit / n_reigons
-    U = zeros(n_reigons)
-    ptr = lengthReigon/2
-
-    for i in 1:n_reigons
-        U[i] =  potentialFunction(ptr)
-        ptr += lengthReigon
-    end
-
-    return U, [lengthReigon for i in 1:n_reigons]
 end
 
 function getBoundaries(reigon_lengths)
@@ -41,15 +27,5 @@ U, an = piecewisePotential(10, 1111, p)
 U = U*e
 boundaries = getBoundaries(an*1e-9)
 E = 1e-21:1e-22:10e-19
-energyLoop(E, U, boundaries)
-
-#tprpSim()
-#nReigonSim(0.75*e, U, boundaries, an*1e-9)
-# Bound States - Highest to Lowest
-#E = 3.843359e-19
-#E = 1.2678747928e-19
-#E = 7.1410000239e-20
-#E = 1.4122357142399997e-20
-#E = 3.531310235e-21
-#E = 0.8828720751e-21
-
+t11 = energyLoop(E, U, boundaries)
+#display(plot(real(t11)))
