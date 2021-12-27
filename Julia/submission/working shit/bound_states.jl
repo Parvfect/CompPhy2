@@ -34,10 +34,13 @@ end
 function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
     #= Gets the nth bound state Sign crossover for t11. Repeats simulation between the two energies till energy eigenfunction is found =#
         
+    repeat = 0
+
     while true
         
         if !checkFlip(lowerEnergy, higherEnergy, U, boundaries)
-            throw(DomainError(ch, "Sign Flip lost - suggests that the function manipulated too much or there are no bound states"))
+            s = "Sign Flip lost - suggests that the function manipulated too much or there are no bound states"
+            error(s) = throw(ErrorException(s))
         end
         # Getting midpoint from higher and lower energy
         midpoint = (lowerEnergy + higherEnergy)/2
@@ -46,11 +49,14 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
         t11 = real(nReigonTm(midpoint, U, boundaries)[1,1])
 
         # Minimum error seems to be 1e-13 and then the thing starts repeating
-        if abs(real(t11)) >= 1e-13
-        
+        if abs(real(t11)) >= 1e-12
+            if repeat > 1e6
+                println("Nothing found here after $repeat repeats")
+                return -1
+            end
             lowerEnergyt11 = real(nReigonTm(lowerEnergy, U, boundaries)[1,1])
             higherEnergyt11 = real(nReigonTm(higherEnergy, U, boundaries)[1,1])
-            
+
             # Finding which energy level has a larger t11 value and adjusting energy levels accordingly
             if higherEnergyt11 > lowerEnergyt11   
                 # Since we know that there is a 0 between he and le we can use this feature to find the energy level
@@ -66,6 +72,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
                     higherEnergy = midpoint
                 end
             end
+            repeat += 1
 
         # If t11 is less than absolute error, return the bound state   
         else 

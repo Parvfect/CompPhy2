@@ -9,7 +9,7 @@ save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
 
 function createGaussianPotential(V, a)
     #= V = 3 , a = 5 =#
-    return x -> V * exp(- (x-a)^2/6.25)
+    return x -> V * exp(-(x-a)^2)
 end
 
 function getBoundaries(reigon_lengths)
@@ -22,10 +22,11 @@ function getBoundaries(reigon_lengths)
     return boundaries
 end
 
-p = createGaussianPotential(2,5)
+p = createGaussianPotential(1,5)
 U, an = piecewisePotential(10, 1111, p)
+display(plot(U))
 U = U*e
-boundaries = getBoundaries(an*1e-9)
-E = 1e-21:1e-22:10e-19
-t11 = energyLoop(E, U, boundaries)
+#boundaries = getBoundaries(an*1e-9)
+#E = 1e-21:1e-22:10e-19
+#t11 = energyLoop(E, U, boundaries)
 #display(plot(real(t11)))

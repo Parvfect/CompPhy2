@@ -27,7 +27,7 @@ end
 
 function t11Sim(U, boundaries)
     E = 1e-22:1e-22:3e-19
-    energyLoop(E, U, boundaries)
+    t11 = energyLoop(E, U, boundaries)
     display(plot(real(t11)))
 end
 
@@ -45,14 +45,14 @@ function plotBoundStates(U, boundaries)
     # Still got repeats in bound states, and its not picking up all bound states in the reigon
     E = 1e-22:1e-22:3e-19
     boundStates = getAllBoundStates(E, U, boundaries)
-    print(boundStates)
 end
 
 
 p = createHarmonicPotential(1.5e14)
-U, an = piecewisePotential(10, 5, p)
+U, an = harmonicPiecewise(10, 11, p)
+display(plot(U))
 U = U*e
 boundaries = getBoundaries(an*1e-9)
 #t11Sim(U, boundaries)
-#plotBoundStates(U, boundaries)
-nReigonSim(9.450000000000001e-21, U, boundaries, an)
+plotBoundStates(U, boundaries)
+#nReigonSim(9.557812500000001e-21, U, boundaries, an*1e-9)

@@ -77,7 +77,7 @@ end
 function nReigonPlot(A, B, k, reigon_lengths, saveFig)
     
     ptr = 0
-    p1 = plot(xlabel = "x", ylabel = "psi(x)", xlim=(0,1.2e-8), ylim=(-Inf,+Inf), grid = true)
+    p1 = plot(xlabel = "x", ylabel = "psi(x)", grid = true, legend = false)
     for i in 1:length(A)
         x = ptr:1e-11:ptr + reigon_lengths[i]
         psi = [getWavefunction(A[i], B[i], k[i], j) for j in x]
@@ -92,6 +92,20 @@ function nReigonPlot(A, B, k, reigon_lengths, saveFig)
     end
 end
 
+function harmonicPiecewise(upperLimit, n_reigons, potentialFunction)
+    lengthReigon = upperLimit / n_reigons
+    lowerLimit = - upperLimit/2
+    U = zeros(n_reigons)
+    ul = upperLimit/2
+    ptr = lowerLimit + lengthReigon/2
+
+    for i in 1:n_reigons
+        U[i] = potentialFunction(ptr)
+        ptr += lengthReigon
+    end
+
+    return U, [lengthReigon for i in 1:n_reigons]
+end
 
 function piecewisePotential(upperLimit, n_reigons, potentialFunction)
     lengthReigon = upperLimit / n_reigons
