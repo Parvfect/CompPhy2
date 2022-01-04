@@ -1,4 +1,3 @@
-include("generic_soln.jl")
 
 # Transmission Probability Plot looks sound - 25/12/21
 
@@ -24,9 +23,4 @@ end
 
 p = createGaussianPotential(1,5)
 U, an = piecewisePotential(10, 1111, p)
-display(plot(U))
-U = U*e
-#boundaries = getBoundaries(an*1e-9)
-#E = 1e-21:1e-22:10e-19
-#t11 = energyLoop(E, U, boundaries)
-#display(plot(real(t11)))
+boundaries = getBoundaries(an*1e-9)

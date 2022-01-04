@@ -49,7 +49,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
         t11 = real(nReigonTm(midpoint, U, boundaries)[1,1])
 
         # Minimum error seems to be 1e-13 and then the thing starts repeating
-        if abs(real(t11)) >= 1e-12
+        if abs(real(t11)) >= 1e-9
             if repeat > 1e6
                 println("Nothing found here after $repeat repeats")
                 return -1
@@ -85,7 +85,7 @@ end
 function getAllBoundStates(E, U, boundaries)
 
     energyEigenfunctions = []
-    t11arr = real(energyLoop(E, U, boundaries))
+    t11arr = real(energyLoopt11(E, U, boundaries))
     n = 1
     energyBoundStates = boundStates(E, t11arr)
     while n*2 <= length(energyBoundStates)

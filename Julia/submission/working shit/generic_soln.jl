@@ -121,23 +121,26 @@ function piecewisePotential(upperLimit, n_reigons, potentialFunction)
 end
 
 """ Energy Loops """
-function energyLoop(E, U, boundaries)
-    TM = [nReigonTm(i, U, boundaries) for i in E]
+function energyLoopt11(E, U, boundaries)
     
-    t11, tp, rp = complex(zeros(length(E))), complex(zeros(length(E))), complex(zeros(length(E)))
-    j = 1
+    TM, t11, j  = [nReigonTm(i, U, boundaries) for i in E], complex(zeros(length(E))), 1
     for i in TM
         t11[j] = i[1,1]
+        j = j + 1
+    end
+  
+    return t11
+end
+
+function energyLoopTprp(E, U, boundaries)
+    
+    TM, tp, rp, j = [nReigonTm(i, U, boundaries) for i in E], complex(zeros(length(E))), complex(zeros(length(E))), 1
+    for i in TM
         tp[j] = getTransmissionProbability(i[1,1])
         rp[j] = getReflectionProbability(i[2,1], i[1,1])
         j = j + 1
     end
     
-    #p1 = plot(real(tp))
-    #p1 = plot!(real(rp))
-    #display(plot(real(t11)))
-    #display(p1)
-
-    return t11
+    return tp, rp
 end
 
