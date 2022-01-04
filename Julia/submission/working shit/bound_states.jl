@@ -49,7 +49,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
         t11 = real(nReigonTm(midpoint, U, boundaries)[1,1])
 
         # Minimum error seems to be 1e-13 and then the thing starts repeating
-        if abs(real(t11)) >= 1e-9
+        if abs(real(t11)) >= 1e-4
             if repeat > 1e6
                 println("Nothing found here after $repeat repeats")
                 return -1

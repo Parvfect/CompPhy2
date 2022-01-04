@@ -23,4 +23,5 @@ end
 
 p = createGaussianPotential(1,5)
 U, an = piecewisePotential(10, 1111, p)
-boundaries = getBoundaries(an*1e-9)
+U, reigon_lengths = U*e, an*1e-9
+boundaries = getBoundaries(reigon_lengths)

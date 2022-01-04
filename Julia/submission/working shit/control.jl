@@ -8,13 +8,14 @@ include("bound_states.jl")
 systems = [
     "finite_well", 
     "potential_barrier",
+    "triangular_potential",
     "gaussian_potential",
     "harmonic_oscillator",
     "double_well", 
     "quadraple_well"
 ]
-E = 1e-22:1e-22:3e-19
-
+E = 1e-22:1e-22:5e-19
+e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
 
 function boundStates(system)
     if system == 2 || system == 3
@@ -23,7 +24,18 @@ function boundStates(system)
         include("$(systems[system]).jl")
         boundStates = getAllBoundStates(E, U, boundaries)
         print(boundStates)
-
+        
+        while true
+            println("There are $(length(boundStates)), which one would you like to see? Enter 0 to exit")
+            input = parse(Int64, readline())
+            if input == 0
+                break
+            else
+                E = boundStates[input] 
+                A, B = nReigon(E, U, 1.0, 0, boundaries)
+                nReigonPlot(A, B, getTotalWaveVector(E, U), reigon_lengths, false)
+            end
+        end
     end
 end
 
@@ -36,8 +48,8 @@ end
 function tprp(system)
     include("$(systems[system]).jl")
     tp, rp = energyLoopTprp(E, U, boundaries)
-    plot(tp)
-    display(plot!(rp))
+    plot(real(tp))
+    display(plot!(real(rp)))
 end
 
 function nReigon(system)
