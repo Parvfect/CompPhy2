@@ -1,7 +1,9 @@
+#= \..generic_soln.jl
+    Methods for obtaining a solution for the nReigon Simulation of arbitary Potential Quantum Systems
+=#
+
 using Plots
 using LinearAlgebra
-
-save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
 
 """ Helper Methods """
 

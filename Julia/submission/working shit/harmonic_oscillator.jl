@@ -1,8 +1,5 @@
-#=
-25/12/21
-Going out of memory for the bound states
-Sign Flip loss for the other bound states
-t11 looks solid
+#= ../harmonic_oscillator.jl
+System Parameters for the Harmonic Oscillator 
 =#
 
 e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0

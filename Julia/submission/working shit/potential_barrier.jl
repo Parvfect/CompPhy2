@@ -1,5 +1,6 @@
-using Plots
-using LinearAlgebra
+#= ../potential_barrier.jl
+System Parameters for the Potential Barrier
+=#
 
 e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
 save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"

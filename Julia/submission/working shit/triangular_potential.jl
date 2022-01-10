@@ -1,4 +1,8 @@
+#= ../triangular_potential.jl
+System Parameters for the Triangular Potential 
+=#
 
+save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/triangular_potential/"
 include("generic_soln.jl")
 
 function triangularPotential(x)

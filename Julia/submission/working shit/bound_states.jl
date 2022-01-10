@@ -1,6 +1,6 @@
 #=  .../bound_states.jl 
-    Finds the energy bound States of any system given 
-    a function that returns the t11 for a certain energy
+    Methods to find the energy bound States of any system given 
+    a function that returns its t11 for a certain energy
     and a t11 that intersects zero
 =#
 
@@ -31,7 +31,7 @@ function boundStates(E, t11arr)
     return energyBoundStates
 end
 
-function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
+function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries, acceptableError)
     #= Gets the nth bound state Sign crossover for t11. Repeats simulation between the two energies till energy eigenfunction is found =#
         
     repeat = 0
@@ -42,6 +42,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
             s = "Sign Flip lost - suggests that the function manipulated too much or there are no bound states"
             error(s) = throw(ErrorException(s))
         end
+        
         # Getting midpoint from higher and lower energy
         midpoint = (lowerEnergy + higherEnergy)/2
         #println(lowerEnergy, "", higherEnergy, "", midpoint)
@@ -49,7 +50,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
         t11 = real(nReigonTm(midpoint, U, boundaries)[1,1])
 
         # Minimum error seems to be 1e-13 and then the thing starts repeating
-        if abs(real(t11)) >= 1e-4
+        if abs(real(t11)) >= acceptableError
             if repeat > 1e6
                 println("Nothing found here after $repeat repeats")
                 return -1
@@ -82,7 +83,7 @@ function getNthBoundStateEnergy(lowerEnergy, higherEnergy,  U, boundaries)
     end
 end
 
-function getAllBoundStates(E, U, boundaries)
+function getAllBoundStates(E, U, boundaries, acceptableError)
 
     energyEigenfunctions = []
     t11arr = real(energyLoopt11(E, U, boundaries))
@@ -90,7 +91,7 @@ function getAllBoundStates(E, U, boundaries)
     energyBoundStates = boundStates(E, t11arr)
     while n*2 <= length(energyBoundStates)
         lowerEnergy, higherEnergy = energyBoundStates[n], energyBoundStates[n+1]
-        append!(energyEigenfunctions, getNthBoundStateEnergy(lowerEnergy, higherEnergy, U, boundaries))
+        append!(energyEigenfunctions, getNthBoundStateEnergy(lowerEnergy, higherEnergy, U, boundaries, acceptableError))
         n = n + 1
     end
     return energyEigenfunctions

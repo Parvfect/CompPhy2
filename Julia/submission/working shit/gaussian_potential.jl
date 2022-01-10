@@ -1,9 +1,9 @@
-
-# Transmission Probability Plot looks sound - 25/12/21
+#= ../gaussian_potential.jl
+System Parameters for the Gaussian Potential 
+=#
 
 e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
-save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/"
-#U, reigon_lengths, boundaries = [3, 0, 3]*e, [2e-9, 8e-9, 2e-9], [2e-9, 10e-9]
+save_path = "C:/Users/Parv/Documents/compphy/Julia/Data/gaussian_potential/"
 
 
 function createGaussianPotential(V, a)

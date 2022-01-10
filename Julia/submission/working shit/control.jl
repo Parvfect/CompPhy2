@@ -14,6 +14,7 @@ systems = [
     "double_well", 
     "quadraple_well"
 ]
+
 E = 1e-22:1e-22:5e-19
 e, me, hbar, A3 = 1.6e-19, 9.11e-31, 1.05e-34, 1.0
 
@@ -22,7 +23,11 @@ function boundStates(system)
         println("Your system is not compatible with calculating bound states.")
     else
         include("$(systems[system]).jl")
-        boundStates = getAllBoundStates(E, U, boundaries)
+
+        println("Please enter the acceptable error magnitude in 1e-{}")
+        acceptableError = 1* 10^(-parse(Int64, readline()))
+        
+        boundStates = getAllBoundStates(E, U, boundaries, acceptableError)
         print(boundStates)
         
         while true
@@ -60,7 +65,6 @@ function nReigon(system)
     A, B = nReigon(E, U, 1.0, 0, boundaries)
     nReigonPlot(A, B, getTotalWaveVector(E, U), reigon_lengths, false)
 end
-
 
 function main()
     
